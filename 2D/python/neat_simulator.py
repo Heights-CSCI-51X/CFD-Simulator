@@ -23,17 +23,33 @@ class Fluid_Simulator():
     def advection(self):
         u = np.copy(self.u)
         v = np.copy(self.v)
-
+        
         for i in range(1, self.rows - 1):
             for j in range(1, self.columns - 1):
-                self.u[i, j] = u[i, j] - self.dt * (
-                    u[i, j] * (u[i, j] - u[i, j-1]) / self.dx + 
-                    v[i, j] * (u[i, j] - u[i-1, j]) / self.dy
-                )
-                self.v[i, j] = v[i, j] - self.dt * (
-                    u[i, j] * (v[i, j] - v[i, j-1]) / self.dx + 
-                    v[i, j] * (v[i, j] - v[i-1, j]) / self.dy
-                )
+
+                if u[i, j] > 0:
+                    du_dx = (u[i, j] - u[i, j-1]) / self.dx
+                else:
+                    du_dx = (u[i+1, j] - u[i, j]) / self.dx
+                    
+                if v[i, j] > 0:
+                    du_dy = (u[i, j] - u[i-1, j]) / self.dy
+                else:
+                    du_dy = (u[i+1, j] - u[i, j]) / self.dy
+                    
+                self.u[i, j] = u[i, j] - self.dt * (u[i, j] * du_dx + v[i, j] * du_dy)
+
+                if u[i, j] > 0:
+                    dv_dx = (v[i, j] - v[i, j-1]) / self.dx
+                else:
+                    dv_dx = (v[i, j-1] - v[i, j]) / self.dx
+                    
+                if v[i, j] > 0:
+                    dv_dy = (v[i, j] - v[i-1, j]) / self.dy
+                else:
+                    dv_dy = (v[i-1, j] - v[i, j]) / self.dy
+                    
+                self.v[i, j] = v[i, j] - self.dt * (u[i, j] * dv_dx + v[i, j] * dv_dy)
     
     def set_grid_color(self, color=[0, 0, 0]):
         for i in range(self.rows):
@@ -41,6 +57,10 @@ class Fluid_Simulator():
                 self.grid[i, j] = color
 
     def init(self):
+        for i in range(self.rows):
+            for j in range(self.columns):
+                self.u[i, j] = .2
+                self.v[i, j] = .2
         fig, ax = plt.subplots()
         self.fig = fig
         self.ax = ax
