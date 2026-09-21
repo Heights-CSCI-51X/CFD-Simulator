@@ -12,6 +12,7 @@ class Fluid_Simulator():
         self.width = actual_width
         self.height = actual_width * rows / columns
         self.grid = np.ones((rows, columns, 3))
+        self.velocity = np.zeros((rows, columns, 2))
         self.u = np.zeros((rows, columns))
         self.v = np.zeros((rows, columns))
         self.dt = dt
@@ -25,8 +26,8 @@ class Fluid_Simulator():
     
 
     def advection(self):
-        u = np.copy(self.u)
-        v = np.copy(self.v)
+        u = self.velocity[:, :, 0].copy()
+        v = self.velocity[:, :, 1].copy()
 
         for i in range(self.rows):
             for j in range(self.columns):
@@ -42,34 +43,29 @@ class Fluid_Simulator():
                 b = previous_y - y0
                 velocity_x = (1 - a) * (1 - b)* u[x0, y0] + a * (1 - b) * u[x1, y0] + (1 - a) * b * u[x0, y1] + a * b * u[x1, y1]
                 velocity_y = (1 - a) * (1 - b)* v[x0, y0] + a * (1 - b) * v[x1, y0] + (1 - a) * b * v[x0, y1] + a * b * v[x1, y1]
-                self.u[i, j] = velocity_x
-                self.v[i, j] = velocity_y
+                self.velocity[i, j] = [velocity_x, velocity_y]
                 
     def init(self):
-        for i in range(self.rows):
-            for j in range(self.columns):
-                self.u[i, j] = -.1
-                self.v[i, j] = -.1
+        self.velocity[:, :, :] = .1
         fig, ax = plt.subplots()
 
         def on_close(event):
             sys.exit(0)
 
         fig.canvas.mpl_connect('close_event', on_close)
-        
+
         self.fig = fig
         self.ax = ax
         self.im = ax.imshow(self.grid, extent=self.plot_extent)
 
     def render(self):
-        max_vel = max(np.max(np.abs(self.u)), np.max(np.abs(self.v)), 1e-5)
+        max_vel = np.max(np.abs(self.velocity))
 
-        norm_u = self.u / max_vel
-        norm_v = self.v / max_vel
+        norm_velocity = self.velocity / max_vel
 
         self.grid[..., 0] = .1
-        self.grid[..., 1] = (norm_u + 1) * 0.5
-        self.grid[..., 2] = (norm_v + 1) * 0.5
+        self.grid[..., 1] = (norm_velocity[:, :, 0] + 1) * 0.5
+        self.grid[..., 2] = (norm_velocity[:, :, 1] + 1) * 0.5
 
         self.im.set_data(self.grid)
         plt.pause(self.dt)
@@ -82,8 +78,7 @@ def main():
     r_start, r_end = simulator.rows // 3, 2 * (simulator.rows // 3)
     c_start, c_end = simulator.columns // 3, 2 * (simulator.columns // 3)
 
-    simulator.u[r_start:r_end, c_start:c_end] = -.7
-    simulator.v[r_start:r_end, c_start:c_end] = -.7
+    simulator.velocity[r_start:r_end, c_start:c_end, :] = .7
 
     plt.ion()
 
