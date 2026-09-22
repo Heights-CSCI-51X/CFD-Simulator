@@ -1,0 +1,21 @@
+#chat gave me this, I` dont know how git ignore works, but I knew I needed one
+
+# Mac operating system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Virtual environment (specific to your project setup)
+2D/python/cfd_simulator/
+
+# Python cache and byte-compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# VS Code project settings and workspace data
+.vscode/
+
+# Environmental variables / secrets (good practice to include)
+.env
+.secrets
