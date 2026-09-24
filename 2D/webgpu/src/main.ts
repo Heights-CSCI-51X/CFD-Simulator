@@ -1,4 +1,5 @@
 import './style.css'
+import shadercode from "./computeshader.wgsl?raw"
 
 var canvas = document.getElementById("c") as HTMLCanvasElement
 var gpu = undefined
@@ -14,6 +15,10 @@ if (!gpu) {
 } else {
   console.log("WebGPU found")
 }
+
+function makeShader(){
+
+};
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <p> hello </p>
