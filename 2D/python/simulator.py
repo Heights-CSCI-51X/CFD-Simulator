@@ -72,7 +72,7 @@ class Fluid_Simulator():
 
 
 def main():
-    simulator = Fluid_Simulator(100, 100, 2, .05)
+    simulator = Fluid_Simulator(200, 200, 2, .05)
     simulator.init()
 
     r_start, r_end = simulator.rows // 3, 2 * (simulator.rows // 3)
