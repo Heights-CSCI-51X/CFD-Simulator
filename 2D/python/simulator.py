@@ -7,21 +7,26 @@ import sys
 
 class Fluid_Simulator():
     def __init__(self, rows, columns, actual_width, dt):
+        fig, ax = plt.subplots()
         self.rows = rows
         self.columns = columns
         self.width = actual_width
         self.height = actual_width * rows / columns
         self.grid = np.ones((rows, columns, 3))
         self.velocity = np.zeros((rows, columns, 2))
+        self.velocity[:, :, :] = .1
         self.u = np.zeros((rows, columns))
         self.v = np.zeros((rows, columns))
         self.dt = dt
         self.dx = actual_width / columns
         self.dy = self.height / rows
-        self.fig = None
-        self.ax = None
-        self.im = None
+        self.fig = fig
+        self.ax = ax
+        self.im = ax.imshow(self.grid, extent=self.plot_extent)
         self.plot_extent = [0, self.width, 0, self.height]
+        def on_close(event):
+            sys.exit(0)
+        fig.canvas.mpl_connect('close_event', on_close)
 
     
 
@@ -44,19 +49,7 @@ class Fluid_Simulator():
                 velocity_x = (1 - a) * (1 - b)* u[x0, y0] + a * (1 - b) * u[x1, y0] + (1 - a) * b * u[x0, y1] + a * b * u[x1, y1]
                 velocity_y = (1 - a) * (1 - b)* v[x0, y0] + a * (1 - b) * v[x1, y0] + (1 - a) * b * v[x0, y1] + a * b * v[x1, y1]
                 self.velocity[i, j] = [velocity_x, velocity_y]
-                
-    def init(self):
-        self.velocity[:, :, :] = .1
-        fig, ax = plt.subplots()
 
-        def on_close(event):
-            sys.exit(0)
-
-        fig.canvas.mpl_connect('close_event', on_close)
-
-        self.fig = fig
-        self.ax = ax
-        self.im = ax.imshow(self.grid, extent=self.plot_extent)
 
     def render(self):
         max_vel = np.max(np.abs(self.velocity))
@@ -73,7 +66,6 @@ class Fluid_Simulator():
 
 def main():
     simulator = Fluid_Simulator(200, 200, 2, .05)
-    simulator.init()
 
     r_start, r_end = simulator.rows // 3, 2 * (simulator.rows // 3)
     c_start, c_end = simulator.columns // 3, 2 * (simulator.columns // 3)

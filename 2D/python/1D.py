@@ -25,7 +25,7 @@ U = np.zeroes((3, nx))
 
 #actually set values to state vector
 U[0, :] = rho
-U[1, :] = u
+U[1, :] = u * rho
 U[2, :] = E
 
 F = np.zeroes((3, nx))
@@ -39,4 +39,8 @@ def weno_Z5():
     stencil1 = 0
     stencil2 = 0
     stencil3 = 0
+
+def lr():
+    for i in range(1, nx - 1):
+        grad = 
 
