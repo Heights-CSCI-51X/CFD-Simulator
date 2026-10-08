@@ -56,6 +56,12 @@ class Simulator():
         a_final = max(determ)
         self.dt = CFL * self.dx / a_final
 
+    def calculate_a(self, i):
+        return max(
+            (self.u_state[i, 1] / self.u_state[i, 0] + np.sqrt(GAMMA * self.p / self.u_state[i, 0]))
+            (self.u_state[i + 1, 1] / self.u_state[i + 1, 0] + np.sqrt(GAMMA * self.p / self.u_state[i + 1, 0]))
+        )
+
 def main():
     pass
 
