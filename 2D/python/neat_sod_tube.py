@@ -18,17 +18,17 @@ CFL = .5
 class Simulator():
     def __init__(self):
         #number of cells
-        self.nx = 100
+        self.nx = 10
         #number of time steps
-        self.nt = 1000
+        self.nt = 100
         #cell distance
         self.dx = 1/(self.nx - 1)
         #length of timestep, we will calculate this later
         self.dt = None
         #this is the state vector, u
-        self.u_state = np.zeros((3, self.nx))
+        self.u_state = np.zeros((self.nx, 3))
         #this is the flux vector, the amount of what is stored in the u that is moving out of the cell
-        self.f = np.zeros((3, self.nx))
+        self.f = np.zeros((self.nx, 3))
         #rho, the density of the fluid at a given point
         rho = np.where(np.linspace(0, 1, self.nx) < .5, 2.0, 0.1)
         #u, the velocity of the fluid at a given point
@@ -46,13 +46,13 @@ class Simulator():
 
     #this calculates the flux vector, how fast u_state is moving on average in a cell
     def calculate_flux(self):
-        self.f[:, 0] = self.u_state[:, 0]
+        self.f[:, 0] = self.u_state[:, 1]
         self.f[:, 1] = self.u_state[:, 1] * self.u_state[:, 1] / self.u_state[:, 0] + self.p
-        self.f[:, 2] = self.u_state[:, 1] * (self.u_state[:, 2] + self.p)
+        self.f[:, 2] = (self.u_state[:, 1] / self.u_state[:, 0]) * (self.u_state[:, 2] + self.p)
 
     #this is a function which dynamically calculates the time step to prevent crashes using CFL
     def calculate_dt(self):
-        u = self.u_state[:, 1]
+        u = self.u_state[:, 1] / self.u_state[:, 0]
         a = np.sqrt(self.p * GAMMA / self.u_state[:, 0])
         determ = np.abs(u) + a
         a_final = max(determ)
@@ -61,12 +61,17 @@ class Simulator():
     #this calculates the speed of sound (aka max wave speed) in a certain cell
     def calculate_a(self, i):
         return max(
-            (self.u_state[i, 1] / self.u_state[i, 0] + np.sqrt(GAMMA * self.p / self.u_state[i, 0]))
-            (self.u_state[i + 1, 1] / self.u_state[i + 1, 0] + np.sqrt(GAMMA * self.p / self.u_state[i + 1, 0]))
+            (np.abs(self.u_state[i, 1] / self.u_state[i, 0]) + np.sqrt(GAMMA * self.p[i] / self.u_state[i, 0])),
+            (np.abs(self.u_state[i + 1, 1] / self.u_state[i + 1, 0]) + np.sqrt(GAMMA * self.p[i + 1] / self.u_state[i + 1, 0]))
         )
 
 def main():
-    pass
+    #this is a quick demo to make sure stuff works
+    simulator = Simulator()
+    simulator.calculate_dt()
+    simulator.calculate_flux()
+    test = simulator.calculate_a(4)
+    print(simulator.u_state, simulator.f, simulator.dt, test)
 
 if __name__ == "__main__":
     main()
