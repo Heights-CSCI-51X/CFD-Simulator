@@ -46,7 +46,7 @@ class Simulator():
 
     def calculate_flux(self):
         self.f[:, 0] = self.u_state[:, 0]
-        self.f[:, 1] = self.u_state[:, 0] * self.u_state[:, 1] * self.u_state[:, 1] + self.p
+        self.f[:, 1] = self.u_state[:, 1] * self.u_state[:, 1] / self.u_state[:, 0] + self.p
         self.f[:, 2] = self.u_state[:, 1] * (self.u_state[:, 2] + self.p)
 
     def calculate_dt(self):
