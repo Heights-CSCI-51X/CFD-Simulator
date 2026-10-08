@@ -65,6 +65,10 @@ class Simulator():
             (np.abs(self.u_state[i + 1, 1] / self.u_state[i + 1, 0]) + np.sqrt(GAMMA * self.p[i + 1] / self.u_state[i + 1, 0]))
         )
 
+    #this recalculates p after state is updated
+    def calculate_u(self):
+        return (GAMMA - 1) * (self.u_state[:, 2] - 1/2 * (self.u_state[:, 1] ** 2) / self.u_state[:, 0])
+
 def main():
     #this is a quick demo to make sure stuff works
     simulator = Simulator()
