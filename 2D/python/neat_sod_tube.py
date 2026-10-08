@@ -44,11 +44,13 @@ class Simulator():
         #now we set the values of flux
         self.flux = self.calculate_flux()
 
+    #this calculates the flux vector, how fast u_state is moving on average in a cell
     def calculate_flux(self):
         self.f[:, 0] = self.u_state[:, 0]
         self.f[:, 1] = self.u_state[:, 1] * self.u_state[:, 1] / self.u_state[:, 0] + self.p
         self.f[:, 2] = self.u_state[:, 1] * (self.u_state[:, 2] + self.p)
 
+    #this is a function which dynamically calculates the time step to prevent crashes using CFL
     def calculate_dt(self):
         u = self.u_state[:, 1]
         a = np.sqrt(self.p * GAMMA / self.u_state[:, 0])
@@ -56,6 +58,7 @@ class Simulator():
         a_final = max(determ)
         self.dt = CFL * self.dx / a_final
 
+    #this calculates the speed of sound (aka max wave speed) in a certain cell
     def calculate_a(self, i):
         return max(
             (self.u_state[i, 1] / self.u_state[i, 0] + np.sqrt(GAMMA * self.p / self.u_state[i, 0]))
