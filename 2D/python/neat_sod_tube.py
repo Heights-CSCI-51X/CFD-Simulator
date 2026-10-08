@@ -47,7 +47,14 @@ class Simulator():
     def calculate_flux(self):
         self.f[:, 0] = self.u_state[:, 0]
         self.f[:, 1] = self.u_state[:, 0] * self.u_state[:, 1] * self.u_state[:, 1] + self.p
-        self.f[:, 2] = self.u_state[:, 1] * (self.u_state[:, 2] + self.p) 
+        self.f[:, 2] = self.u_state[:, 1] * (self.u_state[:, 2] + self.p)
+
+    def calculate_dt(self):
+        u = self.u_state[:, 1]
+        a = np.sqrt(self.p * GAMMA / self.u_state[:, 0])
+        determ = np.abs(u) + a
+        a_final = max(determ)
+        self.dt = CFL * self.dx / a_final
 
 def main():
     pass
