@@ -55,7 +55,7 @@ class Simulator():
         u = self.u_state[:, 1] / self.u_state[:, 0]
         a = np.sqrt(self.p * GAMMA / self.u_state[:, 0])
         determ = np.abs(u) + a
-        a_final = max(determ)
+        a_final = np.max(determ)
         self.dt = CFL * self.dx / a_final
 
     #this calculates the speed of sound (aka max wave speed) in a certain cell
@@ -85,6 +85,19 @@ class Simulator():
             u[i, :] = self.u_state[i, :] - (self.dt / self.dx) * (flux_right - flux_left)
         self.u_state = u
 
+    def optimized_lf(self):
+        u_copy = self.u_state.copy()
+        #this gets the maxspeed at i
+        u = self.u_state[:, 1] / self.u_state[:, 0]
+        a = np.sqrt(GAMMA * self.p / self.u_state[:, 0])
+        max_speed = np.abs(u) + a
+        #now it will give the max speed across two cells: i & i + 1
+        a_interface = np.maximum(max_speed[:-1], max_speed[1:])
+        #now we calculate the flux using supa-efficient numpy!
+        flux = 1/2 * (self.f[:-1, :] + self.f[1:, :]) - 1/2 * a_interface[:, np.newaxis] * (self.u_state[1:, :] - self.u_state[:-1, :])
+        u_copy[1:-1, :] = self.u_state[1:-1, :] - (self.dt / self.dx) * (flux[1:, :] - flux[:-1, :])
+        self.u_state = u_copy
+
 def main():
     #this is a quick demo to make sure stuff works
     simulator = Simulator()
@@ -93,7 +106,7 @@ def main():
     test = simulator.calculate_a(4)
     print(simulator.u_state)
     for i in range(4):
-        simulator.lf()
+        simulator.optimized_lf()
         print(simulator.u_state)
 
 if __name__ == "__main__":
