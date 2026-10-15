@@ -13,42 +13,46 @@ EPSILON = .00000001
 #we use this to calculate how little work the simulator can do without crashing
 CFL = .5
 
-#This is a simulation of a two dimensional 
+#This is a simulation of a two dimensional wave traveling.
 
 class Simulator():
     def __init__(self):
         #number of cells
         self.nx = 10
+        self.ny
         #number of time steps
         self.nt = 100
         #cell distance
         self.dx = 1/(self.nx - 1)
+        self.dy = 1/(self.ny - 1)
         #length of timestep, we will calculate this later
         self.dt = None
         #this is the state vector, u
-        self.u_state = np.zeros((self.nx, 3))
+        self.u_state = np.zeros((self.nx, self.ny, 3))
         #this is the flux vector, the amount of what is stored in the u that is moving out of the cell
-        self.f = np.zeros((self.nx, 3))
+        self.f = np.zeros((self.nx, self.ny, 3))
         #rho, the density of the fluid at a given point
-        rho = np.where(np.linspace(0, 1, self.nx) < .5, 2.0, 0.1)
+        rho_1d = np.where(np.linspace(0, 1, self.nx) < 0.5, 2.0, 0.1)
+        rho = np.tile(rho_1d[:, np.newaxis], (1, self.ny))
         #u, the velocity of the fluid at a given point
-        u = np.zeros(self.nx)
+        u = np.zeros(self.nx, self.ny)
         #p, the pressure of the fluid at a given point
-        self.p = np.where(np.linspace(0, 1, self.nx) < .5, 2.0, 0.1)
+        p_1d = np.where(np.linspace(0, 1, self.nx) < .5, 2.0, 0.1)
+        self.p = np.tile(p_1d[:, np.newaxis], (1, self.ny))
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho * u ** 2
         #now we set the values of u_state
-        self.u_state[:, 0] = rho
-        self.u_state[:, 1] = u * rho
-        self.u_state[:, 2] = e
+        self.u_state[:, :, 0] = rho
+        self.u_state[:, :, 1] = u * rho
+        self.u_state[:, :, 2] = e
         #now we set the values of flux
         self.flux = self.calculate_flux()
 
     #this calculates the flux vector, how fast u_state is moving on average in a cell
     def calculate_flux(self):
-        self.f[:, 0] = self.u_state[:, 1]
-        self.f[:, 1] = self.u_state[:, 1] * self.u_state[:, 1] / self.u_state[:, 0] + self.p
-        self.f[:, 2] = (self.u_state[:, 1] / self.u_state[:, 0]) * (self.u_state[:, 2] + self.p)
+        self.f[:, :, 0] = self.u_state[:, :, 1]
+        self.f[:, :, 1] = self.u_state[:, :, 1] * self.u_state[:, :, 1] / self.u_state[:, :, 0] + self.p
+        self.f[:, :, 2] = (self.u_state[:, :, 1] / self.u_state[:, :, 0]) * (self.u_state[:, :, 2] + self.p)
 
     #this is a function which dynamically calculates the time step to prevent crashes using CFL
     def calculate_dt(self):
@@ -105,9 +109,9 @@ def main():
     simulator.calculate_flux()
     test = simulator.calculate_a(4)
     print(simulator.u_state)
-    for i in range(4):
-        simulator.optimized_lf()
-        print(simulator.u_state)
+    # for i in range(4):
+    #     simulator.optimized_lf()
+    #     print(simulator.u_state)
 
 if __name__ == "__main__":
     main()

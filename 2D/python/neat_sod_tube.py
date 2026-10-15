@@ -105,7 +105,7 @@ def main():
     simulator.calculate_flux()
     test = simulator.calculate_a(4)
     print(simulator.u_state)
-    for i in range(4):
+    for i in range(20):
         simulator.optimized_lf()
         print(simulator.u_state)
 
