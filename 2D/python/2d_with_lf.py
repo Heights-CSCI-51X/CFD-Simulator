@@ -28,25 +28,28 @@ class Simulator():
         #length of timestep, we will calculate this later
         self.dt = None
         #this is the state vector, u
-        self.u_state = np.zeros((self.nx, self.ny, 3))
+        self.u_state = np.zeros((self.nx, self.ny, 4))
         #this is the flux vector, the amount of what is stored in the u that is moving out of the cell
         self.f = np.zeros((self.nx, self.ny, 3))
         #rho, the density of the fluid at a given point
         rho_1d = np.where(np.linspace(0, 1, self.nx) < 0.5, 2.0, 0.1)
         rho = np.tile(rho_1d[:, np.newaxis], (1, self.ny))
-        #u, the velocity of the fluid at a given point
+        #u and v, the velocity of the fluid at a given point
         u = np.zeros(self.nx, self.ny)
+        v = np.zeros(self.nx, self.ny)
         #p, the pressure of the fluid at a given point
         p_1d = np.where(np.linspace(0, 1, self.nx) < .5, 2.0, 0.1)
         self.p = np.tile(p_1d[:, np.newaxis], (1, self.ny))
         #e, the total energy in a fluid cell
-        e = self.p / (GAMMA - 1) + 1/2 * rho * u ** 2
+        e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
         #now we set the values of u_state
         self.u_state[:, :, 0] = rho
         self.u_state[:, :, 1] = u * rho
-        self.u_state[:, :, 2] = e
+        self.u_state[:, :, 2] = v * rho
+        self.u_state[:, :, 3] = e
         #now we set the values of flux
-        self.flux = self.calculate_flux()
+        self.f_flux = np.zeros((self.nx, self.ny, 4))
+        self.g_flux = np.zeros((self.nx, self.ny, 4))
 
     #this calculates the flux vector, how fast u_state is moving on average in a cell
     def calculate_flux(self):
