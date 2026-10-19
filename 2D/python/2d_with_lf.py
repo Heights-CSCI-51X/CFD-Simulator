@@ -52,10 +52,21 @@ class Simulator():
         self.g_flux = np.zeros((self.nx, self.ny, 4))
 
     #this calculates the flux vector, how fast u_state is moving on average in a cell
-    def calculate_flux(self):
-        self.f[:, :, 0] = self.u_state[:, :, 1]
-        self.f[:, :, 1] = self.u_state[:, :, 1] * self.u_state[:, :, 1] / self.u_state[:, :, 0] + self.p
-        self.f[:, :, 2] = (self.u_state[:, :, 1] / self.u_state[:, :, 0]) * (self.u_state[:, :, 2] + self.p)
+    def update_flux(self):
+        rho = self.u_state[:, :, 0]
+        u = self.u_state[:, :, 1] / rho
+        v = self.u_state[:, :, 2] / rho
+        E = self.u_state[:, :, 3]
+
+        self.f_flux[:, :, 0] = rho * u
+        self.f_flux[:, :, 1] = rho * u**2 + self.p
+        self.f_flux[:, :, 2] = rho * u * v
+        self.f_flux[:, :, 3] = (E + self.p) * u
+
+        self.g_flux[:, :, 0] = rho * v
+        self.g_flux[:, :, 1] = rho * u * v
+        self.g_flux[:, :, 2] = rho * v**2 + self.p
+        self.g_flux[:, :, 3] = (E + self.p) * v
 
     #this is a function which dynamically calculates the time step to prevent crashes using CFL
     def calculate_dt(self):
