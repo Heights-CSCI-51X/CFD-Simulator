@@ -50,6 +50,8 @@ class Simulator():
         self.g_flux = np.zeros((self.nx, self.ny, 4))
         #add a vector list to keep track of max speeds
         self.max_speed = np.zeros((self.nx, self.ny))
+        #this is the value a for any i, j
+        self.a = np.zeros((self.nx, self.ny))
 
     #this calculates the flux vector, how fast u_state is moving on average in a cell
     def update_flux(self):
@@ -81,6 +83,9 @@ class Simulator():
         u = self.u_state[:, :, 1] / self.u_state[:, :, 0]
         a = np.sqrt(GAMMA * self.p / self.u_state[:, :, 0])
         self.max_speed = np.abs(u) + a
+
+    def calculate_a(self):
+        a = np.maximum(self.max_speed[:-1], self.max_speed[1:])
 
     #this recalculates p after state is updated
     def calculate_p(self):
