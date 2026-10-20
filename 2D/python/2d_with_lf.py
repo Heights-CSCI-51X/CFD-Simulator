@@ -48,6 +48,8 @@ class Simulator():
         #these are the flux vector, the amount of what is stored in the state that is moving in and out of the cell
         self.f_flux = np.zeros((self.nx, self.ny, 4))
         self.g_flux = np.zeros((self.nx, self.ny, 4))
+        #add a vector list to keep track of max speeds
+        self.max_speed = np.zeros((self.nx, self.ny))
 
     #this calculates the flux vector, how fast u_state is moving on average in a cell
     def update_flux(self):
@@ -75,32 +77,31 @@ class Simulator():
         self.dt = CFL * self.dx / a_final
 
     #this calculates the speed of sound (aka max wave speed) in a certain cell
-    def calculate_a_u(self, i, j):
-        return max(
-            (np.abs(self.u_state[i, j, 1] / self.u_state[i, j, 0]) + np.sqrt(GAMMA * self.p[i, j] / self.u_state[i, j, 0])),
-            (np.abs(self.u_state[i + 1, j, 1] / self.u_state[i + 1, j, 0]) + np.sqrt(GAMMA * self.p[i + 1, j] / self.u_state[i + 1, j, 0]))
-        )
+    def calculate_max_speed(self):
+        u = self.u_state[:, 1] / self.u_state[:, 0]
+        a = np.sqrt(GAMMA * self.p / self.u_state[:, 0])
+        self.max_speed = np.abs(u) + a
 
     #this recalculates p after state is updated
     def calculate_p(self):
         self.p = (GAMMA - 1) * (self.u_state[:, 2] - 1/2 * (self.u_state[:, 1] ** 2) / self.u_state[:, 0])
 
     #this advects all the conserved qualities (state)
-    def lf(self):
-        u = self.u_state.copy()
-        for i in range(1, self.nx - 1):
-            #this gets the local top wave speed for the left cell
-            a_left = self.calculate_a(i - 1)
-            #this does the same for the right
-            a_right = self.calculate_a(i)
-            #this gets the flux on the left side with a little artificial dissapation
-            flux_left = 1/2 * (self.f[i - 1, :] + self.f[i, :]) - 1/2 * a_left * (self.u_state[i, :] - self.u_state[i - 1, :])
-            #this does the same for the right
-            flux_right = 1/2 * (self.f[i, :] + self.f[i + 1, :]) - 1/2 * a_right * (self.u_state[i + 1, :] - self.u_state[i, :])
-            #averages them and then updates state
-            u[i, :] = self.u_state[i, :] - (self.dt / self.dx) * (flux_right - flux_left)
-        #updates the actual state array
-        self.u_state = u
+    # def lf(self):
+    #     u = self.u_state.copy()
+    #     for i in range(1, self.nx - 1):
+    #         #this gets the local top wave speed for the left cell
+    #         a_left = self.calculate_a(i - 1)
+    #         #this does the same for the right
+    #         a_right = self.calculate_a(i)
+    #         #this gets the flux on the left side with a little artificial dissapation
+    #         flux_left = 1/2 * (self.f[i - 1, :] + self.f[i, :]) - 1/2 * a_left * (self.u_state[i, :] - self.u_state[i - 1, :])
+    #         #this does the same for the right
+    #         flux_right = 1/2 * (self.f[i, :] + self.f[i + 1, :]) - 1/2 * a_right * (self.u_state[i + 1, :] - self.u_state[i, :])
+    #         #averages them and then updates state
+    #         u[i, :] = self.u_state[i, :] - (self.dt / self.dx) * (flux_right - flux_left)
+    #     #updates the actual state array
+    #     self.u_state = u
 
     def optimized_lf(self):
         u_copy = self.u_state.copy()
