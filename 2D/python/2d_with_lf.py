@@ -19,7 +19,7 @@ class Simulator():
     def __init__(self):
         #number of cells
         self.nx = 10
-        self.ny
+        self.ny = 10
         #number of time steps
         self.nt = 100
         #cell distance
@@ -29,14 +29,12 @@ class Simulator():
         self.dt = None
         #this is the state vector, u
         self.u_state = np.zeros((self.nx, self.ny, 4))
-        #this is the flux vector, the amount of what is stored in the u that is moving out of the cell
-        self.f = np.zeros((self.nx, self.ny, 3))
         #rho, the density of the fluid at a given point
         rho_1d = np.where(np.linspace(0, 1, self.nx) < 0.5, 2.0, 0.1)
         rho = np.tile(rho_1d[:, np.newaxis], (1, self.ny))
         #u and v, the velocity of the fluid at a given point
-        u = np.zeros(self.nx, self.ny)
-        v = np.zeros(self.nx, self.ny)
+        u = np.zeros((self.nx, self.ny))
+        v = np.zeros((self.nx, self.ny))
         #p, the pressure of the fluid at a given point
         p_1d = np.where(np.linspace(0, 1, self.nx) < .5, 2.0, 0.1)
         self.p = np.tile(p_1d[:, np.newaxis], (1, self.ny))
@@ -47,7 +45,7 @@ class Simulator():
         self.u_state[:, :, 1] = u * rho
         self.u_state[:, :, 2] = v * rho
         self.u_state[:, :, 3] = e
-        #now we set the values of flux
+        #these are the flux vector, the amount of what is stored in the state that is moving in and out of the cell
         self.f_flux = np.zeros((self.nx, self.ny, 4))
         self.g_flux = np.zeros((self.nx, self.ny, 4))
 
@@ -77,7 +75,7 @@ class Simulator():
         self.dt = CFL * self.dx / a_final
 
     #this calculates the speed of sound (aka max wave speed) in a certain cell
-    def calculate_a(self, i):
+    def calculate_a_u(self, i):
         return max(
             (np.abs(self.u_state[i, 1] / self.u_state[i, 0]) + np.sqrt(GAMMA * self.p[i] / self.u_state[i, 0])),
             (np.abs(self.u_state[i + 1, 1] / self.u_state[i + 1, 0]) + np.sqrt(GAMMA * self.p[i + 1] / self.u_state[i + 1, 0]))
