@@ -75,10 +75,10 @@ class Simulator():
         self.dt = CFL * self.dx / a_final
 
     #this calculates the speed of sound (aka max wave speed) in a certain cell
-    def calculate_a_u(self, i):
+    def calculate_a_u(self, i, j):
         return max(
-            (np.abs(self.u_state[i, 1] / self.u_state[i, 0]) + np.sqrt(GAMMA * self.p[i] / self.u_state[i, 0])),
-            (np.abs(self.u_state[i + 1, 1] / self.u_state[i + 1, 0]) + np.sqrt(GAMMA * self.p[i + 1] / self.u_state[i + 1, 0]))
+            (np.abs(self.u_state[i, j, 1] / self.u_state[i, j, 0]) + np.sqrt(GAMMA * self.p[i, j] / self.u_state[i, j, 0])),
+            (np.abs(self.u_state[i + 1, j, 1] / self.u_state[i + 1, j, 0]) + np.sqrt(GAMMA * self.p[i + 1, j] / self.u_state[i + 1, j, 0]))
         )
 
     #this recalculates p after state is updated
@@ -93,12 +93,13 @@ class Simulator():
             a_left = self.calculate_a(i - 1)
             #this does the same for the right
             a_right = self.calculate_a(i)
-            #this gets the flux with a little artificial dissapation
+            #this gets the flux on the left side with a little artificial dissapation
             flux_left = 1/2 * (self.f[i - 1, :] + self.f[i, :]) - 1/2 * a_left * (self.u_state[i, :] - self.u_state[i - 1, :])
             #this does the same for the right
             flux_right = 1/2 * (self.f[i, :] + self.f[i + 1, :]) - 1/2 * a_right * (self.u_state[i + 1, :] - self.u_state[i, :])
             #averages them and then updates state
             u[i, :] = self.u_state[i, :] - (self.dt / self.dx) * (flux_right - flux_left)
+        #updates the actual state array
         self.u_state = u
 
     def optimized_lf(self):
