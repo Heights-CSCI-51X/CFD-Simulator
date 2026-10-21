@@ -85,7 +85,9 @@ class Simulator():
         self.max_speed = np.abs(u) + a
 
     def calculate_a(self):
-        a = np.maximum(self.max_speed[:-1], self.max_speed[1:])
+        a_x = np.maximum(self.max_speed[:-2, :], self.max_speed[2:, :], self.max_speed[1:-1, :])
+        a_y = np.maximum(self.max_speed[:, :-2], self.max_speed[:, 2:], self.max_speed[:, 1:-1])
+        self.a = np.maximum(a_x, a_y)
 
     #this recalculates p after state is updated
     def calculate_p(self):
