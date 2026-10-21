@@ -125,6 +125,7 @@ def main():
     simulator.update_flux()
     simulator.update_max_speed()
     simulator.update_a()
+    simulator.update_p()
 
 if __name__ == "__main__":
     main()
