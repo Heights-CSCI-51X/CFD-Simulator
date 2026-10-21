@@ -71,7 +71,7 @@ class Simulator():
         self.g_flux[:, :, 3] = (E + self.p) * v
 
     #this is a function which dynamically calculates the time step to prevent crashes using CFL
-    def calculate_dt(self):
+    def update_dt(self):
         u = self.u_state[:, 1] / self.u_state[:, 0]
         a = np.sqrt(self.p * GAMMA / self.u_state[:, 0])
         determ = np.abs(u) + a
@@ -79,18 +79,18 @@ class Simulator():
         self.dt = CFL * self.dx / a_final
 
     #this calculates the speed of sound (aka max wave speed) in a certain cell
-    def calculate_max_speed(self):
+    def update_max_speed(self):
         u = self.u_state[:, :, 1] / self.u_state[:, :, 0]
         a = np.sqrt(GAMMA * self.p / self.u_state[:, :, 0])
         self.max_speed = np.abs(u) + a
 
-    def calculate_a(self):
+    def update_a(self):
         a_x = np.maximum(self.max_speed[:-2, :], self.max_speed[2:, :], self.max_speed[1:-1, :])
         a_y = np.maximum(self.max_speed[:, :-2], self.max_speed[:, 2:], self.max_speed[:, 1:-1])
         self.a = np.maximum(a_x, a_y)
 
     #this recalculates p after state is updated
-    def calculate_p(self):
+    def update_p(self):
         self.p = (GAMMA - 1) * (self.u_state[:, 2] - 1/2 * (self.u_state[:, 1] ** 2) / self.u_state[:, 0])
 
     #this advects all the conserved qualities (state)
