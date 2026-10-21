@@ -85,8 +85,8 @@ class Simulator():
         self.max_speed = np.abs(u) + a
 
     def update_a(self):
-        a_x = np.maximum(self.max_speed[:-2, :], self.max_speed[2:, :], self.max_speed[1:-1, :])
-        a_y = np.maximum(self.max_speed[:, :-2], self.max_speed[:, 2:], self.max_speed[:, 1:-1])
+        a_x = np.maximum(self.max_speed[:-2, 1:-1], self.max_speed[2:, 1:-1], self.max_speed[1:-1, 1:-1])
+        a_y = np.maximum(self.max_speed[1:-1, :-2], self.max_speed[1:-1, 2:])
         self.a = np.maximum(a_x, a_y)
 
     #this recalculates p after state is updated
@@ -122,13 +122,9 @@ class Simulator():
 def main():
     #this is a quick demo to make sure stuff works
     simulator = Simulator()
-    simulator.calculate_dt()
-    simulator.calculate_flux()
-    test = simulator.calculate_a(4)
-    print(simulator.u_state)
-    # for i in range(4):
-    #     simulator.optimized_lf()
-    #     print(simulator.u_state)
+    simulator.update_flux()
+    simulator.update_max_speed()
+    simulator.update_a()
 
 if __name__ == "__main__":
     main()
