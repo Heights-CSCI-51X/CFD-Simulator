@@ -48,10 +48,14 @@ class Simulator():
         #these are the flux vector, the amount of what is stored in the state that is moving in and out of the cell
         self.f_flux = np.zeros((self.nx, self.ny, 4))
         self.g_flux = np.zeros((self.nx, self.ny, 4))
-        #add a vector list to keep track of max speeds
-        self.max_speed = np.zeros((self.nx, self.ny))
-        #this is the value a for any i, j
-        self.a = np.zeros((self.nx, self.ny))
+        #add a vector list to keep track of max speeds for x direction
+        self.max_speed_x = np.zeros((self.nx, self.ny))
+        #the same for the y
+        self.max_speed_y = np.zeros((self.nx, self.ny))
+        #this is the value a for any i, j concerning the x direction
+        self.ax = np.zeros((self.nx, self.ny))
+        #the same for the y
+        self.ay = np.zeros((self.nx, self.ny))
 
     #this calculates the flux vector, how fast u_state is moving on average in a cell
     def update_flux(self):
