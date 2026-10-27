@@ -74,35 +74,33 @@ class Simulator():
         self.g_flux[:, :, 2] = rho * v**2 + self.p
         self.g_flux[:, :, 3] = (E + self.p) * v
 
-    #this is a function which dynamically calculates the time step to prevent crashes using CFL
-    def update_dt(self):
-        u = self.u_state[:, 1] / self.u_state[:, 0]
-        a = np.sqrt(self.p * GAMMA / self.u_state[:, 0])
-        determ = np.abs(u) + a
-        a_final = np.max(determ)
-        self.dt = CFL * self.dx / a_final
+    def update_max_wave_speeds(self):
+        rho = self.u_state[:, :, 0]
+        u = self.u_state[:, :, 1] / rho
+        v = self.u_state[:, :, 2] / rho
+        
+        c = np.sqrt(GAMMA * self.p / rho)
+        
+        self.max_speed_x = np.abs(u) + c
+        self.max_speed_y = np.abs(v) + c
 
-    #this calculates the speed of sound (aka max wave speed) in a certain cell
-    def update_max_speed(self):
-        u = self.u_state[:, :, 1] / self.u_state[:, :, 0]
-        ax = np.sqrt(GAMMA * self.p / self.u_state[:, :, 0])
-        self.max_speed = np.abs(u) + ax
-
-    def update_a(self):  
-        x_top    = self.max_speed_x[2:,   1:-1]
-        x_bottom = self.max_speed_x[:-2,  1:-1]
-        x_left   = self.max_speed_x[1:-1, :-2 ]
-        x_right  = self.max_speed_x[1:-1, 2:  ]
+    def update_a(self): 
+        x_left   = self.max_speed_x[:-2, 1:-1]
         x_center = self.max_speed_x[1:-1, 1:-1]
+        x_right  = self.max_speed_x[2:, 1:-1]
+        self.ax  = np.maximum.reduce([x_left, x_center, x_right])
         
-        y_top    = self.max_speed_y[2:,   1:-1]
-        y_bottom = self.max_speed_y[:-2,  1:-1]
-        y_left   = self.max_speed_y[1:-1, :-2 ]
-        y_right  = self.max_speed_y[1:-1, 2:  ]
+        y_bottom = self.max_speed_y[1:-1, :-2]
         y_center = self.max_speed_y[1:-1, 1:-1]
+        y_top    = self.max_speed_y[1:-1, 2:]
+        self.ay  = np.maximum.reduce([y_bottom, y_center, y_top])
+
+    def update_dt(self):
+        a_x_max = np.max(self.max_speed_x[1:-1, 1:-1])
+        a_y_max = np.max(self.max_speed_y[1:-1, 1:-1])
         
-        self.ax = np.maximum.reduce([x_top, x_bottom, x_left, x_right, x_center])
-        self.ay = np.maximum.reduce([y_top, y_bottom, y_left, y_right, y_center])
+        self.dt = CFL / ((a_x_max / self.dx) + (a_y_max / self.dy))
+
 
     #this recalculates p after state is updated
     def update_p(self):
