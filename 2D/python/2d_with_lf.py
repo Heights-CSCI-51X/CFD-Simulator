@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 GAMMA = 1.4
 
 #this is a small number we will need to prevent division by zero
-EPSILON = .00000001
+EPSILON = .00000000000000001
 
 #we use this to calculate how little work the simulator can do without crashing
 CFL = .3
@@ -92,7 +92,7 @@ class Simulator():
         a_x_max = np.max(self.max_speed_x[1:-1, 1:-1])
         a_y_max = np.max(self.max_speed_y[1:-1, 1:-1])
         
-        self.dt = CFL / ((a_x_max / self.dx) + (a_y_max / self.dy))
+        self.dt = CFL / ((a_x_max / self.dx) + (a_y_max / self.dy) + EPSILON)
 
 
     #this recalculates p after state is updated
