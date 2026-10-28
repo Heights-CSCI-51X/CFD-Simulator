@@ -14,7 +14,7 @@ class Fluid_Simulator():
         self.height = actual_width * rows / columns
         self.grid = np.ones((rows, columns, 3))
         self.velocity = np.zeros((rows, columns, 2))
-        self.velocity[:, :, :] = .1
+        self.velocity[:, :, :] = 0
         self.u = np.zeros((rows, columns))
         self.v = np.zeros((rows, columns))
         self.dt = dt
@@ -22,7 +22,7 @@ class Fluid_Simulator():
         self.dy = self.height / rows
         self.fig = fig
         self.ax = ax
-        self.im = ax.imshow(self.grid, extent=self.plot_extent)
+        self.im = ax.imshow(self.grid)
         self.plot_extent = [0, self.width, 0, self.height]
         def on_close(event):
             sys.exit(0)

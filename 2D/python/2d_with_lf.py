@@ -1,6 +1,7 @@
 #!usr/bin/env python3
 import numpy as np
 from matplotlib import pyplot as plt
+import sys
 
 #globals
 
@@ -56,6 +57,13 @@ class Simulator():
         self.ax = np.zeros((self.nx, self.ny))
         #the same for the y
         self.ay = np.zeros((self.nx, self.ny))
+        fig, ax = plt.subplots()
+        self.fig = fig
+        self.ax = ax
+        self.im = ax.imshow(self.grid)
+        def on_close(event):
+            sys.exit(0)
+        self.fig.canvas.mpl_connect('close_event', on_close)
 
     #this calculates the flux vector, how fast u_state is moving on average in a cell
     def update_flux(self):
