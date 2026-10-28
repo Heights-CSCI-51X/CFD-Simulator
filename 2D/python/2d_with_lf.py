@@ -64,6 +64,7 @@ class Simulator():
         def on_close(event):
             sys.exit(0)
         self.fig.canvas.mpl_connect('close_event', on_close)
+        self.grid = np.ones((self.nx, self.ny, 3))
 
     #this calculates the flux vector, how fast u_state is moving on average in a cell
     def update_flux(self):
@@ -120,14 +121,25 @@ class Simulator():
         #update state using flux
         self.u_state[1:-1, 1:-1, :] -= (self.dt / self.dx) * (flux_at_the_walls_x[1:, 1:-1, :] - flux_at_the_walls_x[:-1, 1:-1, :]) + (self.dt / self.dy) * (flux_at_the_walls_y[1:-1, 1:, :] - flux_at_the_walls_y[1:-1, :-1, :])
 
+    def render(self):
+        normalized_x = self.u_state[:, :, 1] / np.max(np.abs(self.max_speed_x))
+        normalized_y = self.u_state[:, :, 2] / np.max(np.abs(self.max_speed_y))
+
+        self.grid[..., 0] = self.p / np.max(self.p)
+        self.grid[..., 1] = (normalized_x + 1) * 0.5
+        self.grid[..., 2] = (normalized_y + 1) * 0.5
+
+        self.im.set_data(self.grid)
+        plt.pause(self.dt)
+
 def main():
     #this is a quick demo to make sure stuff works
     simulator = Simulator()
     simulator.optimized_lf()
     print(simulator.dt)
-    for i in range(3):
-        print(simulator.u_state)
+    for i in range(simulator.nt):
         simulator.optimized_lf()
+        simulator.render()
 
 if __name__ == "__main__":
     main()
