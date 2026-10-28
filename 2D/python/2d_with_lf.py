@@ -28,6 +28,8 @@ class Simulator():
         self.dy = 1/(self.ny - 1)
         #length of timestep, we will calculate this later
         self.dt = None
+        #this holds the values of our rendering array
+        self.grid = np.ones((self.nx, self.ny, 3))
         #this is the state vector, u
         self.u_state = np.zeros((self.nx, self.ny, 4))
         #rho, the density of the fluid at a given point
@@ -64,7 +66,6 @@ class Simulator():
         def on_close(event):
             sys.exit(0)
         self.fig.canvas.mpl_connect('close_event', on_close)
-        self.grid = np.ones((self.nx, self.ny, 3))
 
     #this calculates the flux vector, how fast u_state is moving on average in a cell
     def update_flux(self):
@@ -122,10 +123,10 @@ class Simulator():
         self.u_state[1:-1, 1:-1, :] -= (self.dt / self.dx) * (flux_at_the_walls_x[1:, 1:-1, :] - flux_at_the_walls_x[:-1, 1:-1, :]) + (self.dt / self.dy) * (flux_at_the_walls_y[1:-1, 1:, :] - flux_at_the_walls_y[1:-1, :-1, :])
 
     def render(self):
-        normalized_x = self.u_state[:, :, 1] / np.max(np.abs(self.max_speed_x))
-        normalized_y = self.u_state[:, :, 2] / np.max(np.abs(self.max_speed_y))
+        normalized_x = self.u_state[:, :, 1] / (np.max(np.abs(self.max_speed_x)) + EPSILON)
+        normalized_y = self.u_state[:, :, 2] / (np.max(np.abs(self.max_speed_y)) + EPSILON)
 
-        self.grid[..., 0] = self.p / np.max(self.p)
+        self.grid[..., 0] = self.p / (np.max(self.p) + EPSILON)
         self.grid[..., 1] = (normalized_x + 1) * 0.5
         self.grid[..., 2] = (normalized_y + 1) * 0.5
 
