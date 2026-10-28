@@ -97,7 +97,7 @@ class Simulator():
 
     #this recalculates p after state is updated
     def update_p(self):
-        self.p = (GAMMA - 1) * (self.u_state[:, 2] - 1/2 * (self.u_state[:, 1] ** 2) / self.u_state[:, 0])
+        self.p = (GAMMA - 1) * (self.u_state[:, :, 2] - 1/2 * (self.u_state[:, :, 1] ** 2) / self.u_state[:, :, 0])
 
     def optimized_lf(self):
         self.update_p()
