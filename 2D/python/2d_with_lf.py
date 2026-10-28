@@ -19,8 +19,8 @@ CFL = .3
 class Simulator():
     def __init__(self):
         #number of cells
-        self.nx = 10
-        self.ny = 10
+        self.nx = 1000
+        self.ny = 1000
         #number of time steps
         self.nt = 100
         #cell distance
@@ -137,10 +137,15 @@ def main():
     #this is a quick demo to make sure stuff works
     simulator = Simulator()
     simulator.optimized_lf()
-    print(simulator.dt)
+
+    plt.ion()
+
     for i in range(simulator.nt):
         simulator.optimized_lf()
         simulator.render()
+
+    plt.ioff()
+    plt.show()
 
 if __name__ == "__main__":
     main()
