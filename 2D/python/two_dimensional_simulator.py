@@ -101,8 +101,10 @@ class Simulator():
     def update_dt(self):
         a_x_max = np.max(self.max_speed_x[1:-1, 1:-1])
         a_y_max = np.max(self.max_speed_y[1:-1, 1:-1])
+
+        dt = CFL / ((a_x_max / self.dx) + (a_y_max / self.dy) + EPSILON)
         
-        self.dt = CFL / ((a_x_max / self.dx) + (a_y_max / self.dy) + EPSILON)
+        self.dt = np.max(dt, 1)
 
 
     #this recalculates p after state is updated
