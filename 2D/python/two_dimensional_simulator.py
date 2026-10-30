@@ -23,7 +23,7 @@ class Simulator():
         self.nx = 1000
         self.ny = 1000
         #number of time steps
-        self.nt = 100
+        self.nt = 10000000
         #cell distance
         self.dx = 1/(self.nx - 1)
         self.dy = 1/(self.ny - 1)
@@ -116,7 +116,7 @@ class Simulator():
 
     #this recalculates p after state is updated
     def update_p(self):
-        self.p = (GAMMA - 1) * (self.u_state[:, :, 2] - 1/2 * (self.u_state[:, :, 1] ** 2) / self.u_state[:, :, 0])
+        self.p = (GAMMA - 1) * (self.u_state[:, :, 3] - 1/2 * (self.u_state[:, :, 1] ** 2 + self.u_state[:, :, 2] ** 2) / self.u_state[:, :, 0])
 
     def optimized_lf(self):
         self.update_p()
@@ -143,6 +143,7 @@ class Simulator():
         self.grid[..., 2] = (normalized_y + 1) * 1/2
 
         self.im.set_data(self.grid)
+        plt.draw()
         plt.pause(self.dt)
 
 def main():
