@@ -126,12 +126,15 @@ class Simulator():
         self.u_state[1:-1, 1:-1, :] -= (self.dt / self.dx) * (flux_at_the_walls_x[1:, 1:-1, :] - flux_at_the_walls_x[:-1, 1:-1, :]) + (self.dt / self.dy) * (flux_at_the_walls_y[1:-1, 1:, :] - flux_at_the_walls_y[1:-1, :-1, :])
 
     def render(self):
-        normalized_x = self.u_state[:, :, 1] / (np.max(np.abs(self.max_speed_x)) + EPSILON)
-        normalized_y = self.u_state[:, :, 2] / (np.max(np.abs(self.max_speed_y)) + EPSILON)
+        scaler = max(np.max(np.abs(self.max_speed_x)), np.max(np.abs(self.max_speed_x)), np.max(np.abs(self.p))) + EPSILON
 
-        self.grid[..., 0] = self.p / (np.max(self.p) + EPSILON)
-        self.grid[..., 1] = (normalized_x + 1) * 0.5
-        self.grid[..., 2] = (normalized_y + 1) * 0.5
+        normalized_x = self.u_state[:, :, 1] / scaler
+        normalized_y = self.u_state[:, :, 2] / scaler
+        normalized_p = self.p / scaler
+
+        self.grid[..., 0] = (normalized_p + 1) * 1/2
+        self.grid[..., 1] = (normalized_x + 1) * 1/2
+        self.grid[..., 2] = (normalized_y + 1) * 1/2
 
         self.im.set_data(self.grid)
         plt.pause(self.dt)
