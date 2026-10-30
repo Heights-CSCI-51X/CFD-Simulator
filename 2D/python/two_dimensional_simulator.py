@@ -13,7 +13,7 @@ GAMMA = 1.4
 EPSILON = .000000000000000000000001
 
 #we use this to calculate how little work the simulator can do without crashing
-CFL = .2
+CFL = .3
 
 #This is a simulation of a two dimensional wave traveling.
 
@@ -41,13 +41,13 @@ class Simulator():
         #p, the pressure of the fluid at a given point
         self.p = np.zeros((self.nx, self.ny)) + EPSILON
         #u and v, the velocity of the fluid at a given point
-        u = np.zeros((self.nx, self.ny))
-        v = np.zeros((self.nx, self.ny))
+        u = np.zeros((self.nx, self.ny)) + EPSILON
+        v = np.zeros((self.nx, self.ny)) + EPSILON
         #let us set the velocity to these strange values
-        rho[r_start:r_end, c_start:c_end] = .5
-        u[r_start:r_end, c_start:c_end] = .5
-        v[r_start:r_end, c_start:c_end] = .5
-        self.p[r_start:r_end, c_start:c_end] = .5
+        rho[r_start:r_end, c_start:c_end] = .1
+        u[r_start:r_end, c_start:c_end] = .1
+        v[r_start:r_end, c_start:c_end] = .1
+        self.p[r_start:r_end, c_start:c_end] = .1
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
         #now we set the values of u_state
@@ -124,8 +124,6 @@ class Simulator():
         self.update_dt()
         self.update_flux()
         self.update_a()
-
-        print(self.dt)
 
         #now we calculate the flux using supa-efficient numpy!
         flux_at_the_walls_x = 1/2 * (self.f_flux[:-1, :, :] + self.f_flux[1:, :, :]) - 1/2 * self.ax[:, :, np.newaxis] * (self.u_state[1:, :, :] - self.u_state[:-1, :, :])
