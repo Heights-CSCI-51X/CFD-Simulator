@@ -20,10 +20,10 @@ CFL = .3
 class Simulator():
     def __init__(self):
         #number of cells
-        self.nx = 1000
-        self.ny = 1000
+        self.nx = 250
+        self.ny = 250
         #number of time steps
-        self.nt = 10000000
+        self.nt = 2000
         #cell distance
         self.dx = 1/(self.nx - 1)
         self.dy = 1/(self.ny - 1)
@@ -44,10 +44,10 @@ class Simulator():
         u = np.zeros((self.nx, self.ny)) + EPSILON
         v = np.zeros((self.nx, self.ny)) + EPSILON
         #let us set the velocity to these strange values
-        rho[r_start:r_end, c_start:c_end] = .1
-        u[r_start:r_end, c_start:c_end] = .1
-        v[r_start:r_end, c_start:c_end] = .1
-        self.p[r_start:r_end, c_start:c_end] = .1
+        rho[r_start:r_end, c_start:c_end] = .25
+        u[r_start:r_end, c_start:c_end] = .25
+        v[r_start:r_end, c_start:c_end] = .25
+        self.p[r_start:r_end, c_start:c_end] = .25
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
         #now we set the values of u_state
@@ -170,7 +170,8 @@ def main():
 
     for i in range(simulator.nt):
         simulator.optimized_lf()
-        simulator.render()
+        if i % 20 == 0:
+            simulator.render()
 
     plt.ioff()
     plt.show()
