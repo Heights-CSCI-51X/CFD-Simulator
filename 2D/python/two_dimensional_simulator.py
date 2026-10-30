@@ -13,7 +13,7 @@ GAMMA = 1.4
 EPSILON = .00000000000000001
 
 #we use this to calculate how little work the simulator can do without crashing
-CFL = .3
+CFL = .4
 
 #This is a simulation of a two dimensional wave traveling.
 
@@ -44,10 +44,10 @@ class Simulator():
         u = np.zeros((self.nx, self.ny))
         v = np.zeros((self.nx, self.ny))
         #let us set the velocity to these strange values
-        rho[r_start:r_end, c_start:c_end] = .5
-        u[r_start:r_end, c_start:c_end] = .5
-        v[r_start:r_end, c_start:c_end] = .5
-        self.p[r_start:r_end, c_start:c_end] = .5
+        rho[r_start:r_end, c_start:c_end] = 1
+        u[r_start:r_end, c_start:c_end] = 5
+        v[r_start:r_end, c_start:c_end] = 5
+        self.p[r_start:r_end, c_start:c_end] = 1
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
         #now we set the values of u_state
@@ -131,15 +131,29 @@ class Simulator():
         flux_at_the_walls_x = 1/2 * (self.f_flux[:-1, :, :] + self.f_flux[1:, :, :]) - 1/2 * self.ax[:, :, np.newaxis] * (self.u_state[1:, :, :] - self.u_state[:-1, :, :])
         flux_at_the_walls_y = 1/2 * (self.g_flux[:, :-1, :] + self.g_flux[:, 1:, :]) - 1/2 * self.ay[:, :, np.newaxis] * (self.u_state[:, 1:, :] - self.u_state[:, :-1, :])
 
-        #update state using flux
-        self.u_state[1:-1, 1:-1, :] -= (self.dt / self.dx) * (flux_at_the_walls_x[1:, 1:-1, :] - flux_at_the_walls_x[:-1, 1:-1, :]) + (self.dt / self.dy) * (flux_at_the_walls_y[1:-1, 1:, :] - flux_at_the_walls_y[1:-1, :-1, :])
+        #this is the average of the four cells adjacent to a given cell
+        average = 1/4 * (self.u_state[2:, 1:-1, :] + self.u_state[:-2, 1:-1, :] + self.u_state[1:-1, 2:, :] + self.u_state[1:-1, :-2, :])
+
+        #this is the artificial dissapation to prevent crashes
+        artificial_dissipation = (self.dt / self.dx) * (flux_at_the_walls_x[1:, 1:-1, :] - flux_at_the_walls_x[:-1, 1:-1, :]) + (self.dt / self.dy) * (flux_at_the_walls_y[1:-1, 1:, :] - flux_at_the_walls_y[1:-1, :-1, :])
+
+        #this adjusts the boundary (which we cant compute normally)
+        self.u_state[0, :, :] = self.u_state[1, :, :]
+        self.u_state[-1, :, :] = self.u_state[-2, :, :]
+        self.u_state[:, 0, :] = self.u_state[:, 1, :]
+        self.u_state[:, -1, :] = self.u_state[:, -2, :]
+
+        #this adjusts everything else
+        self.u_state[1:-1, 1:-1, :] = average - artificial_dissipation
 
     def render(self):
-        scaler = max(np.max(np.abs(self.max_speed_x)), np.max(np.abs(self.max_speed_x)), np.max(np.abs(self.p))) + EPSILON
+        x = self.u_state[:, :, 1]
+        y = self.u_state[:, :, 2]
+        p = self.p
 
-        normalized_x = self.u_state[:, :, 1] / scaler
-        normalized_y = self.u_state[:, :, 2] / scaler
-        normalized_p = self.p / scaler
+        normalized_x = (x - np.min(x)) / (np.max(x) - np.min(x))
+        normalized_y = (y - np.min(y)) / (np.max(y) - np.min(y))
+        normalized_p = (p - np.min(p)) / (np.max(p) - np.min(p))
 
         self.grid[..., 0] = normalized_p
         self.grid[..., 1] = normalized_x
