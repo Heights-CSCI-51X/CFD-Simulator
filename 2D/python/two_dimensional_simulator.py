@@ -44,10 +44,10 @@ class Simulator():
         u = np.zeros((self.nx, self.ny))
         v = np.zeros((self.nx, self.ny))
         #let us set the velocity to these strange values
-        rho[r_start:r_end, c_start:c_end] = .1
-        u[r_start:r_end, c_start:c_end] = .1
-        v[r_start:r_end, c_start:c_end] = .1
-        self.p[r_start:r_end, c_start:c_end] = .1
+        rho[r_start:r_end, c_start:c_end] = .5
+        u[r_start:r_end, c_start:c_end] = .5
+        v[r_start:r_end, c_start:c_end] = .5
+        self.p[r_start:r_end, c_start:c_end] = .5
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
         #now we set the values of u_state
@@ -141,9 +141,9 @@ class Simulator():
         normalized_y = self.u_state[:, :, 2] / scaler
         normalized_p = self.p / scaler
 
-        self.grid[..., 0] = (normalized_p + 1) * 1/2
-        self.grid[..., 1] = (normalized_x + 1) * 1/2
-        self.grid[..., 2] = (normalized_y + 1) * 1/2
+        self.grid[..., 0] = normalized_p
+        self.grid[..., 1] = normalized_x
+        self.grid[..., 2] = normalized_y
 
         self.im.set_data(self.grid)
         plt.draw()
