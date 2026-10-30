@@ -10,10 +10,10 @@ import math
 GAMMA = 1.4
 
 #this is a small number we will need to prevent division by zero
-EPSILON = .00000000000000001
+EPSILON = .000000000000000000000001
 
 #we use this to calculate how little work the simulator can do without crashing
-CFL = .4
+CFL = .1
 
 #This is a simulation of a two dimensional wave traveling.
 
@@ -44,10 +44,10 @@ class Simulator():
         u = np.zeros((self.nx, self.ny))
         v = np.zeros((self.nx, self.ny))
         #let us set the velocity to these strange values
-        rho[r_start:r_end, c_start:c_end] = 1
-        u[r_start:r_end, c_start:c_end] = 5
-        v[r_start:r_end, c_start:c_end] = 5
-        self.p[r_start:r_end, c_start:c_end] = 1
+        rho[r_start:r_end, c_start:c_end] = .1
+        u[r_start:r_end, c_start:c_end] = .1
+        v[r_start:r_end, c_start:c_end] = .1
+        self.p[r_start:r_end, c_start:c_end] = .1
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
         #now we set the values of u_state
