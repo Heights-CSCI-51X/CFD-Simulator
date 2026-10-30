@@ -43,8 +43,8 @@ class Simulator():
         r_start, r_end = self.ny // 3, 2 * (self.ny // 3)
         c_start, c_end = self.nx // 3, 2 * (self.nx // 3)
         #let us set the velocity to these strange values
-        u[r_start:r_end, c_start:c_end] = 1.0
-        v[r_start:r_end, c_start:c_end] = 1.0
+        u[r_start:r_end, c_start:c_end] = .2
+        v[r_start:r_end, c_start:c_end] = .2
         #p, the pressure of the fluid at a given point
         p_1d = np.where(np.linspace(0, 1, self.nx) < .5, 2.0, 0.1)
         self.p = np.tile(p_1d[:, np.newaxis], (1, self.ny))
