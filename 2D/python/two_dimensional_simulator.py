@@ -111,7 +111,7 @@ class Simulator():
 
         dt = CFL / ((a_x_max / self.dx) + (a_y_max / self.dy) + EPSILON)
         
-        self.dt = max(dt, 1)
+        self.dt = min(dt, 1)
 
 
     #this recalculates p after state is updated
