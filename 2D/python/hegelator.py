@@ -16,7 +16,7 @@ def random_array_gen(tc, nx, ny):
     return np.array(flat_data).reshape(nx, ny)
 
 @hegel.test
-def check_if_simulator_settles(tc):
+def test_if_simulator_settles(tc):
     my_simulator = Simulator()
     matrix = tc.draw(random_array_gen(my_simulator.nx, my_simulator.ny))
 
