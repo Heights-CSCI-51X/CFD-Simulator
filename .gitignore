@@ -6,7 +6,7 @@
 .LSOverride
 
 # Virtual environment (specific to your project setup)
-2D/python/cfd_simulator/
+2D/python/.venv/
 
 # Python cache and byte-compiled files
 __pycache__/
