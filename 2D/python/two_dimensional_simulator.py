@@ -124,12 +124,15 @@ class Simulator():
         
         self.u_state[:, :, 3] = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
 
-    def optimized_lf(self):
+    def update(self):
         self.update_p()
-        self.update_max_speed() 
-        self.update_dt()
         self.update_flux()
+        self.update_max_speed()
         self.update_a()
+        self.update_dt()
+
+    def optimized_lf(self):
+        self.update()
 
         #now we calculate the flux using supa-efficient numpy!
         flux_at_the_walls_x = 1/2 * (self.f_flux[:-1, :, :] + self.f_flux[1:, :, :]) - 1/2 * self.ax[:, :, np.newaxis] * (self.u_state[1:, :, :] - self.u_state[:-1, :, :])
