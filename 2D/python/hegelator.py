@@ -5,8 +5,6 @@ import numpy as np
 from two_dimensional_simulator import Simulator
 from matplotlib import pyplot as plt
 
-fig, ax = plt.subplots()
-
 @hegel.composite
 def random_array_gen(tc, nx, ny):
     flat_data = tc.draw(
@@ -20,9 +18,11 @@ def random_array_gen(tc, nx, ny):
 
 @hegel.test
 def test_if_simulator_settles(tc):
-    my_simulator = Simulator(fig, ax)
+    my_simulator = Simulator()
     matrix = tc.draw(random_array_gen(my_simulator.nx, my_simulator.ny))
 
     assert matrix.shape == (my_simulator.nx, my_simulator.ny)
     assert np.all(matrix >= 0) and np.all(matrix <= 1)
+
+    my_simulator.clean_up()
 
