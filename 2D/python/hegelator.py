@@ -3,6 +3,9 @@ import hegel
 from hegel import generators as gs
 import numpy as np
 from two_dimensional_simulator import Simulator
+from matplotlib import pyplot as plt
+
+fig, ax = plt.subplots()
 
 @hegel.composite
 def random_array_gen(tc, nx, ny):
@@ -17,7 +20,7 @@ def random_array_gen(tc, nx, ny):
 
 @hegel.test
 def test_if_simulator_settles(tc):
-    my_simulator = Simulator()
+    my_simulator = Simulator(fig, ax)
     matrix = tc.draw(random_array_gen(my_simulator.nx, my_simulator.ny))
 
     assert matrix.shape == (my_simulator.nx, my_simulator.ny)

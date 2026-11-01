@@ -17,7 +17,7 @@ CFL = .3
 #This is a simulation of a two dimensional wave traveling.
 
 class Simulator():
-    def __init__(self, fig, ax):
+    def __init__(self):
         #number of cells
         self.nx = 250
         self.ny = 250
@@ -65,6 +65,7 @@ class Simulator():
         self.a_x = np.zeros((self.nx, self.ny))
         #the same for the y
         self.a_y = np.zeros((self.nx, self.ny))
+        fig, ax = plt.subplots()
         self.fig = fig
         self.ax = ax
         self.im = ax.imshow(self.grid)
@@ -168,6 +169,9 @@ class Simulator():
         self.im.set_data(self.grid)
         plt.draw()
         plt.pause(self.dt)
+
+    def clean_up(self):
+        plt.close('all')
 
 def main():
     #this is a quick demo to make sure stuff works
