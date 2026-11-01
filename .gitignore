@@ -9,6 +9,9 @@
 2D/python/.venv/
 2D/python/cfd_simulator/
 
+# this stops random hegel stuff from loading
+2D/python/.hegel/
+
 # Python cache and byte-compiled files
 __pycache__/
 *.py[cod]
