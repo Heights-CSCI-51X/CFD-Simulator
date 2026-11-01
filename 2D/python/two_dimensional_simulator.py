@@ -2,7 +2,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import sys
-import math
 
 #globals
 
@@ -23,7 +22,7 @@ class Simulator():
         self.nx = 250
         self.ny = 250
         #number of time steps
-        self.nt = 1000
+        self.nt = 10000
         #cell distance
         self.dx = 1/(self.nx - 1)
         self.dy = 1/(self.ny - 1)
@@ -34,20 +33,20 @@ class Simulator():
         #this is the state vector, u
         self.u_state = np.zeros((self.nx, self.ny, 4))
         #let us define the intervals were our unnatrually square wave will lie
-        r_start, r_end = self.ny // 3, 2 * (self.ny // 3)
-        c_start, c_end = self.nx // 3, 2 * (self.nx // 3)
+        self.r_start, self.r_end = self.ny // 3, 2 * (self.ny // 3)
+        self.c_start, self.c_end = self.nx // 3, 2 * (self.nx // 3)
         #rho, the density of the fluid at a given point
-        rho = np.zeros((self.nx, self.ny)) + EPSILON
+        rho = np.zeros((self.nx, self.ny)) + EPSILON + .001
         #p, the pressure of the fluid at a given point
-        self.p = np.zeros((self.nx, self.ny)) + EPSILON
+        self.p = np.zeros((self.nx, self.ny)) + EPSILON + .001
         #u and v, the velocity of the fluid at a given point
-        u = np.zeros((self.nx, self.ny)) + EPSILON
-        v = np.zeros((self.nx, self.ny)) + EPSILON
+        u = np.zeros((self.nx, self.ny)) + EPSILON + .001
+        v = np.zeros((self.nx, self.ny)) + EPSILON + .001
         #let us set the velocity to these strange values
-        rho[r_start:r_end, c_start:c_end] = .2
-        u[r_start:r_end, c_start:c_end] = .2
-        v[r_start:r_end, c_start:c_end] = .2
-        self.p[r_start:r_end, c_start:c_end] = .2
+        # rho[self.r_start:self.r_end, self.c_start:self.c_end] = .2
+        # u[self.r_start:self.r_end, self.c_start:self.c_end] = .2
+        # v[self.r_start:self.r_end, self.c_start:self.c_end] = .2
+        # self.p[self.r_start:self.r_end, self.c_start:self.c_end] = .2
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
         #now we set the values of u_state
@@ -116,7 +115,7 @@ class Simulator():
 
     #this recalculates p after state is updated
     def update_p(self):
-        self.p = (GAMMA - 1) * (self.u_state[:, :, 3] - 1/2 * (self.u_state[:, :, 1] ** 2 + self.u_state[:, :, 2] ** 2) / self.u_state[:, :, 0])
+        self.p = (GAMMA - 1) * (self.u_state[:, :, 3] - 1/2 * (self.u_state[:, :, 1] ** 2 + self.u_state[:, :, 2] ** 2) / (self.u_state[:, :, 0] + EPSILON))
 
     def optimized_lf(self):
         self.update_p()
@@ -135,23 +134,23 @@ class Simulator():
         #this is the artificial dissapation to prevent crashes
         artificial_dissipation = (self.dt / self.dx) * (flux_at_the_walls_x[1:, 1:-1, :] - flux_at_the_walls_x[:-1, 1:-1, :]) + (self.dt / self.dy) * (flux_at_the_walls_y[1:-1, 1:, :] - flux_at_the_walls_y[1:-1, :-1, :])
 
-        #this adjusts the boundary (which we cant compute normally)
+        #this adjusts everything using the average of the squares around it, and some artificial dissapation
+        self.u_state[1:-1, 1:-1, :] = average - artificial_dissipation
+        
+        #this adjusts the boundary (which we can't compute normally)
         self.u_state[0, :, :] = self.u_state[1, :, :]
         self.u_state[-1, :, :] = self.u_state[-2, :, :]
         self.u_state[:, 0, :] = self.u_state[:, 1, :]
         self.u_state[:, -1, :] = self.u_state[:, -2, :]
-
-        #this adjusts everything else
-        self.u_state[1:-1, 1:-1, :] = average - artificial_dissipation
 
     def render(self):
         x = self.u_state[:, :, 1]
         y = self.u_state[:, :, 2]
         p = self.p
 
-        normalized_x = (x - np.min(x)) / (np.max(x) - np.min(x))
-        normalized_y = (y - np.min(y)) / (np.max(y) - np.min(y))
-        normalized_p = (p - np.min(p)) / (np.max(p) - np.min(p))
+        normalized_x = (x - np.min(x)) / (np.max(x) - np.min(x) + EPSILON)
+        normalized_y = (y - np.min(y)) / (np.max(y) - np.min(y) + EPSILON)
+        normalized_p = (p - np.min(p)) / (np.max(p) - np.min(p) + EPSILON)
 
         self.grid[..., 0] = normalized_p
         self.grid[..., 1] = normalized_x
@@ -164,14 +163,19 @@ class Simulator():
 def main():
     #this is a quick demo to make sure stuff works
     simulator = Simulator()
+    simulator.u_state[0, simulator.c_start:simulator.c_end, 1] = .1
+    speed_limit = np.max(simulator.u_state[:, :, 1])
     simulator.optimized_lf()
 
     plt.ion()
 
     for i in range(simulator.nt):
+        # simulator.u_state[0, simulator.c_start:simulator.c_end, 1] = .1
         simulator.optimized_lf()
         if i % 10 == 0:
             simulator.render()
+        if np.max(simulator.u_state[:, :, 1]) > speed_limit:
+            print("You get a ticket!")
 
     plt.ioff()
     plt.show()
