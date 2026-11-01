@@ -17,7 +17,7 @@ CFL = .3
 #This is a simulation of a two dimensional wave traveling.
 
 class Simulator():
-    def __init__(self):
+    def __init__(self, fig, ax):
         #number of cells
         self.nx = 250
         self.ny = 250
@@ -62,10 +62,9 @@ class Simulator():
         #the same for the y
         self.max_speed_y = np.zeros((self.nx, self.ny))
         #this is the value a for any i, j concerning the x direction
-        self.ax = np.zeros((self.nx, self.ny))
+        self.a_x = np.zeros((self.nx, self.ny))
         #the same for the y
-        self.ay = np.zeros((self.nx, self.ny))
-        fig, ax = plt.subplots()
+        self.a_y = np.zeros((self.nx, self.ny))
         self.fig = fig
         self.ax = ax
         self.im = ax.imshow(self.grid)
@@ -78,17 +77,17 @@ class Simulator():
         rho = self.u_state[:, :, 0]
         u = self.u_state[:, :, 1] / rho
         v = self.u_state[:, :, 2] / rho
-        E = self.u_state[:, :, 3]
+        e = self.u_state[:, :, 3]
 
         self.f_flux[:, :, 0] = rho * u
         self.f_flux[:, :, 1] = rho * u**2 + self.p
         self.f_flux[:, :, 2] = rho * u * v
-        self.f_flux[:, :, 3] = (E + self.p) * u
+        self.f_flux[:, :, 3] = (e + self.p) * u
 
         self.g_flux[:, :, 0] = rho * v
         self.g_flux[:, :, 1] = rho * u * v
         self.g_flux[:, :, 2] = rho * v**2 + self.p
-        self.g_flux[:, :, 3] = (E + self.p) * v
+        self.g_flux[:, :, 3] = (e + self.p) * v
 
     def update_max_speed(self):
         rho = self.u_state[:, :, 0]
@@ -101,8 +100,8 @@ class Simulator():
         self.max_speed_y = np.abs(v) + c
 
     def update_a(self): 
-        self.ax = np.maximum(self.max_speed_x[:-1, :], self.max_speed_x[1:, :])
-        self.ay = np.maximum(self.max_speed_y[:, :-1], self.max_speed_y[:, 1:])
+        self.a_x = np.maximum(self.max_speed_x[:-1, :], self.max_speed_x[1:, :])
+        self.a_y = np.maximum(self.max_speed_y[:, :-1], self.max_speed_y[:, 1:])
 
     def update_dt(self):
         a_x_max = np.max(self.max_speed_x[1:-1, 1:-1])
@@ -135,8 +134,8 @@ class Simulator():
         self.update()
 
         #now we calculate the flux using supa-efficient numpy!
-        flux_at_the_walls_x = 1/2 * (self.f_flux[:-1, :, :] + self.f_flux[1:, :, :]) - 1/2 * self.ax[:, :, np.newaxis] * (self.u_state[1:, :, :] - self.u_state[:-1, :, :])
-        flux_at_the_walls_y = 1/2 * (self.g_flux[:, :-1, :] + self.g_flux[:, 1:, :]) - 1/2 * self.ay[:, :, np.newaxis] * (self.u_state[:, 1:, :] - self.u_state[:, :-1, :])
+        flux_at_the_walls_x = 1/2 * (self.f_flux[:-1, :, :] + self.f_flux[1:, :, :]) - 1/2 * self.a_x[:, :, np.newaxis] * (self.u_state[1:, :, :] - self.u_state[:-1, :, :])
+        flux_at_the_walls_y = 1/2 * (self.g_flux[:, :-1, :] + self.g_flux[:, 1:, :]) - 1/2 * self.a_y[:, :, np.newaxis] * (self.u_state[:, 1:, :] - self.u_state[:, :-1, :])
 
         #this is the average of the four cells adjacent to a given cell
         average = 1/4 * (self.u_state[2:, 1:-1, :] + self.u_state[:-2, 1:-1, :] + self.u_state[1:-1, 2:, :] + self.u_state[1:-1, :-2, :])
