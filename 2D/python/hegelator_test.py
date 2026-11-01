@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import hegel
 from hegel import generators as gs
 
