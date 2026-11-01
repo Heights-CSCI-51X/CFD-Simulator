@@ -117,6 +117,13 @@ class Simulator():
     def update_p(self):
         self.p = (GAMMA - 1) * (self.u_state[:, :, 3] - 1/2 * (self.u_state[:, :, 1] ** 2 + self.u_state[:, :, 2] ** 2) / (self.u_state[:, :, 0] + EPSILON))
 
+    def update_e(self):
+        rho = self.u_state[:, :, 0]
+        u = self.u_state[:, :, 1] / rho
+        v = self.u_state[:, :, 2] / rho
+        
+        self.u_state[:, :, 3] = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
+
     def optimized_lf(self):
         self.update_p()
         self.update_max_speed() 
