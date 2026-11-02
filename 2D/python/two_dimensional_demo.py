@@ -6,7 +6,7 @@ import sys
 
 EPSILON = .0000000000000000001
 
-def render(simulator):
+def render(simulator, grid):
     x = simulator.u_state[:, :, 1]
     y = simulator.u_state[:, :, 2]
     p = simulator.p
@@ -15,17 +15,17 @@ def render(simulator):
     normalized_y = (y - np.min(y)) / (np.max(y) - np.min(y) + EPSILON)
     normalized_p = (p - np.min(p)) / (np.max(p) - np.min(p) + EPSILON)
 
-    simulator.grid[..., 0] = normalized_p
-    simulator.grid[..., 1] = normalized_x
-    simulator.grid[..., 2] = normalized_y
+    grid[..., 0] = normalized_p
+    grid[..., 1] = normalized_x
+    grid[..., 2] = normalized_y
 
-    simulator.im.set_data(simulator.grid)
     plt.draw()
     plt.pause(simulator.dt)
 
 def main():
 
     my_simulator = Simulator()
+
     fig, ax = plt.subplots()
 
     grid = np.ones((my_simulator.nx, my_simulator.ny, 3))
@@ -34,7 +34,20 @@ def main():
 
     def on_close(event):
         sys.exit(0)
+        
     fig.canvas.mpl_connect('close_event', on_close)
 
+    plt.ion()
     
+    for i in range(my_simulator.nt):
+        my_simulator.optimized_lf()
+        im.set_data(grid)
+        if i % 10 == 0:
+            render(my_simulator, grid)
+            
 
+    plt.ioff()
+    plt.show()
+
+if __name__ == "__main__":
+    main()

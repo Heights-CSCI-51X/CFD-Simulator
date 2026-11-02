@@ -39,9 +39,9 @@ class Simulator():
         u = np.zeros((self.nx, self.ny)) + EPSILON + .001
         v = np.zeros((self.nx, self.ny)) + EPSILON + .001
         #let us set the velocity to these strange values
-        # rho[self.r_start:self.r_end, self.c_start:self.c_end] = .2
-        # u[self.r_start:self.r_end, self.c_start:self.c_end] = .2
-        # v[self.r_start:self.r_end, self.c_start:self.c_end] = .2
+        rho[self.r_start:self.r_end, self.c_start:self.c_end] = .2
+        u[self.r_start:self.r_end, self.c_start:self.c_end] = .2
+        v[self.r_start:self.r_end, self.c_start:self.c_end] = .2
         # self.p[self.r_start:self.r_end, self.c_start:self.c_end] = .2
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
@@ -146,21 +146,8 @@ def main():
     simulator = Simulator()
     simulator.u_state[0, simulator.c_start:simulator.c_end, 1] = .1
     simulator.update_e()
-    speed_limit = np.max(simulator.u_state[:, :, 1])
     simulator.optimized_lf()
-
-    plt.ion()
-
-    for i in range(simulator.nt):
-        # simulator.u_state[0, simulator.c_start:simulator.c_end, 1] = .1
-        simulator.optimized_lf()
-        if i % 10 == 0:
-            simulator.render()
-        if np.max(simulator.u_state[:, :, 1]) > speed_limit:
-            print("You get a ticket!")
-
-    plt.ioff()
-    plt.show()
+    print(simulator.u_state)
 
 if __name__ == "__main__":
     main()
