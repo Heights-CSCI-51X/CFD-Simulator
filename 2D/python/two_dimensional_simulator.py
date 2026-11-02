@@ -20,7 +20,7 @@ class Simulator():
         self.nx = nx
         self.ny = ny
         #number of time steps
-        self.nt = 10000
+        self.nt = 1000
         #cell distance
         self.dx = 1/(self.nx - 1)
         self.dy = 1/(self.ny - 1)
@@ -40,7 +40,7 @@ class Simulator():
         v = np.zeros((self.nx, self.ny))
         #let us set the velocity to these strange values
         rho[0, :] = .2
-        u[0, :] = .2
+        u[0, :] = .7
         self.p[0, :] = .2
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
@@ -129,11 +129,11 @@ class Simulator():
         #this is the average of the four cells adjacent to a given cell
         average = 1/4 * (self.u_state[2:, 1:-1, :] + self.u_state[:-2, 1:-1, :] + self.u_state[1:-1, 2:, :] + self.u_state[1:-1, :-2, :])
 
-        #this is the artificial dissapation to prevent crashes
-        artificial_dissipation = (self.dt / self.dx) * (flux_at_the_walls_x[1:, 1:-1, :] - flux_at_the_walls_x[:-1, 1:-1, :]) + (self.dt / self.dy) * (flux_at_the_walls_y[1:-1, 1:, :] - flux_at_the_walls_y[1:-1, :-1, :])
+        net_flux_x = (self.dt / self.dx) * (flux_at_the_walls_x[1:, 1:-1, :] - flux_at_the_walls_x[:-1, 1:-1, :])
+        net_flux_y = (self.dt / self.dy) * (flux_at_the_walls_y[1:-1, 1:, :] - flux_at_the_walls_y[1:-1, :-1, :])
 
         #this adjusts everything using the average of the squares around it, and some artificial dissapation
-        self.u_state[1:-1, 1:-1, :] -= artificial_dissipation
+        self.u_state[1:-1, 1:-1, :] -= (net_flux_x + net_flux_y)
         
         #this adjusts the boundary (which we can't compute normally)
         self.u_state[0, :, :] = self.u_state[1, :, :]
