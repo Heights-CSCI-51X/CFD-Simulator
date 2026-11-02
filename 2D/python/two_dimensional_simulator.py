@@ -126,14 +126,11 @@ class Simulator():
         flux_at_the_walls_x = 1/2 * (self.f_flux[:-1, :, :] + self.f_flux[1:, :, :]) - 1/2 * self.a_x[:, :, np.newaxis] * (self.u_state[1:, :, :] - self.u_state[:-1, :, :])
         flux_at_the_walls_y = 1/2 * (self.g_flux[:, :-1, :] + self.g_flux[:, 1:, :]) - 1/2 * self.a_y[:, :, np.newaxis] * (self.u_state[:, 1:, :] - self.u_state[:, :-1, :])
 
-        #this is the average of the four cells adjacent to a given cell
-        average = 1/4 * (self.u_state[2:, 1:-1, :] + self.u_state[:-2, 1:-1, :] + self.u_state[1:-1, 2:, :] + self.u_state[1:-1, :-2, :])
-
         #this is the artificial dissapation to prevent crashes
         artificial_dissipation = (self.dt / self.dx) * (flux_at_the_walls_x[1:, 1:-1, :] - flux_at_the_walls_x[:-1, 1:-1, :]) + (self.dt / self.dy) * (flux_at_the_walls_y[1:-1, 1:, :] - flux_at_the_walls_y[1:-1, :-1, :])
 
         #this adjusts everything using the average of the squares around it, and some artificial dissapation
-        self.u_state[1:-1, 1:-1, :] = average - artificial_dissipation
+        self.u_state[1:-1, 1:-1, :] -= artificial_dissipation
         
         #this adjusts the boundary (which we can't compute normally)
         self.u_state[0, :, :] = self.u_state[1, :, :]
