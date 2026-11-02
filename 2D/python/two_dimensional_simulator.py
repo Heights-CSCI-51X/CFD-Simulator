@@ -80,6 +80,7 @@ class Simulator():
 
     def update_max_speed(self):
         rho = self.u_state[:, :, 0]
+        rho = np.maximum(rho, 1e-5)
         u = self.u_state[:, :, 1] / rho
         v = self.u_state[:, :, 2] / rho
         
@@ -132,7 +133,7 @@ class Simulator():
         artificial_dissipation = (self.dt / self.dx) * (flux_at_the_walls_x[1:, 1:-1, :] - flux_at_the_walls_x[:-1, 1:-1, :]) + (self.dt / self.dy) * (flux_at_the_walls_y[1:-1, 1:, :] - flux_at_the_walls_y[1:-1, :-1, :])
 
         #this adjusts everything using the average of the squares around it, and some artificial dissapation
-        self.u_state[1:-1, 1:-1, :] = average - artificial_dissipation
+        self.u_state[1:-1, 1:-1, :] -= artificial_dissipation
         
         #this adjusts the boundary (which we can't compute normally)
         self.u_state[0, :, :] = self.u_state[1, :, :]
