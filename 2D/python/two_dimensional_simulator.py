@@ -15,10 +15,10 @@ CFL = .3
 #This is a simulation of a two dimensional wave traveling.
 
 class Simulator():
-    def __init__(self):
+    def __init__(self, nx=8, ny=8):
         #number of cells
-        self.nx = 250
-        self.ny = 250
+        self.nx = nx
+        self.ny = ny
         #number of time steps
         self.nt = 10000
         #cell distance
@@ -34,15 +34,14 @@ class Simulator():
         #rho, the density of the fluid at a given point
         rho = np.zeros((self.nx, self.ny)) + EPSILON
         #p, the pressure of the fluid at a given point
-        self.p = np.zeros((self.nx, self.ny)) + EPSILON
+        self.p = np.zeros((self.nx, self.ny))
         #u and v, the velocity of the fluid at a given point
-        u = np.zeros((self.nx, self.ny)) + EPSILON
-        v = np.zeros((self.nx, self.ny)) + EPSILON
+        u = np.zeros((self.nx, self.ny))
+        v = np.zeros((self.nx, self.ny))
         #let us set the velocity to these strange values
-        rho[self.r_start:self.r_end, self.c_start:self.c_end] = .2
-        u[self.r_start:self.r_end, self.c_start:self.c_end] = .2
-        v[self.r_start:self.r_end, self.c_start:self.c_end] = .2
-        self.p[self.r_start:self.r_end, self.c_start:self.c_end] = .2
+        rho[0, :] = .2
+        u[0, :] = .2
+        self.p[0, :] = .2
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
         #now we set the values of u_state
@@ -126,11 +125,14 @@ class Simulator():
         flux_at_the_walls_x = 1/2 * (self.f_flux[:-1, :, :] + self.f_flux[1:, :, :]) - 1/2 * self.a_x[:, :, np.newaxis] * (self.u_state[1:, :, :] - self.u_state[:-1, :, :])
         flux_at_the_walls_y = 1/2 * (self.g_flux[:, :-1, :] + self.g_flux[:, 1:, :]) - 1/2 * self.a_y[:, :, np.newaxis] * (self.u_state[:, 1:, :] - self.u_state[:, :-1, :])
 
+        #this is the average of the four cells adjacent to a given cell
+        average = 1/4 * (self.u_state[2:, 1:-1, :] + self.u_state[:-2, 1:-1, :] + self.u_state[1:-1, 2:, :] + self.u_state[1:-1, :-2, :])
+
         #this is the artificial dissapation to prevent crashes
         artificial_dissipation = (self.dt / self.dx) * (flux_at_the_walls_x[1:, 1:-1, :] - flux_at_the_walls_x[:-1, 1:-1, :]) + (self.dt / self.dy) * (flux_at_the_walls_y[1:-1, 1:, :] - flux_at_the_walls_y[1:-1, :-1, :])
 
         #this adjusts everything using the average of the squares around it, and some artificial dissapation
-        self.u_state[1:-1, 1:-1, :] -= artificial_dissipation
+        self.u_state[1:-1, 1:-1, :] = average - artificial_dissipation
         
         #this adjusts the boundary (which we can't compute normally)
         self.u_state[0, :, :] = self.u_state[1, :, :]
@@ -141,9 +143,9 @@ class Simulator():
 def main():
     #this is a quick demo to make sure stuff works
     simulator = Simulator()
-    simulator.u_state[0, simulator.c_start:simulator.c_end, 1] = .1
+    # simulator.u_state[0, simulator.c_start:simulator.c_end, 1] = .5
     simulator.update_e()
-    simulator.optimized_lf()
+    simulator.update()
     print(simulator.u_state)
 
 if __name__ == "__main__":
