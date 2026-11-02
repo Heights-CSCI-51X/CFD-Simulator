@@ -114,6 +114,7 @@ class Simulator():
 
     def update(self):
         self.update_p()
+        self.update_e()
         self.update_flux()
         self.update_max_speed()
         self.update_a()

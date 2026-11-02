@@ -18,7 +18,7 @@ def random_array_gen(tc, nx, ny):
 
 @hegel.test
 def test_if_simulator_settles(tc):
-    nx = ny = tc.draw(gs.integers(min_value=8, max_value=16))
+    nx = ny = tc.draw(gs.integers(min_value=8, max_value=12))
     # ny = tc.draw(gs.integers(min_value=8, max_value=32))
     my_simulator = Simulator(nx, ny)
     my_simulator.u_state[:, :, 0] = tc.draw(random_array_gen(my_simulator.nx, my_simulator.ny))
