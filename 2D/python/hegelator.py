@@ -18,5 +18,24 @@ def random_array_gen(tc, nx, ny):
 
 @hegel.test
 def test_if_simulator_settles(tc):
-    my_simulator = Simulator()
-    matrix = tc.draw(random_array_gen(my_simulator.nx, my_simulator.ny))
+    my_simulator = Simulator()  
+    my_simulator.u_state[:, :, 0] = tc.draw(random_array_gen(my_simulator.nx, my_simulator.ny))
+    
+    max_history = []
+
+    test_steps = 2500 
+    
+    for i in range(test_steps):
+        my_simulator.optimized_lf()
+        
+        current_max = np.max(my_simulator.u_state[:, :, 0])
+        
+        if np.isnan(current_max) or current_max > 10.0: 
+            assert False, f"Simulator diverged at step {i} with max value {current_max}"
+            
+        if i >= (test_steps - 100):
+            max_history.append(current_max)
+
+    settling_variance = np.var(max_history)
+
+    assert settling_variance < 1e-2, f"Variance over last 100 steps: {settling_variance}"

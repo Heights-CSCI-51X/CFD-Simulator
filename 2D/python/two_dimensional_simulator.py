@@ -32,17 +32,17 @@ class Simulator():
         self.r_start, self.r_end = self.ny // 3, 2 * (self.ny // 3)
         self.c_start, self.c_end = self.nx // 3, 2 * (self.nx // 3)
         #rho, the density of the fluid at a given point
-        rho = np.zeros((self.nx, self.ny)) + EPSILON + .001
+        rho = np.zeros((self.nx, self.ny)) + EPSILON
         #p, the pressure of the fluid at a given point
-        self.p = np.zeros((self.nx, self.ny)) + EPSILON + .001
+        self.p = np.zeros((self.nx, self.ny)) + EPSILON
         #u and v, the velocity of the fluid at a given point
-        u = np.zeros((self.nx, self.ny)) + EPSILON + .001
-        v = np.zeros((self.nx, self.ny)) + EPSILON + .001
+        u = np.zeros((self.nx, self.ny)) + EPSILON
+        v = np.zeros((self.nx, self.ny)) + EPSILON
         #let us set the velocity to these strange values
         rho[self.r_start:self.r_end, self.c_start:self.c_end] = .2
         u[self.r_start:self.r_end, self.c_start:self.c_end] = .2
         v[self.r_start:self.r_end, self.c_start:self.c_end] = .2
-        # self.p[self.r_start:self.r_end, self.c_start:self.c_end] = .2
+        self.p[self.r_start:self.r_end, self.c_start:self.c_end] = .2
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
         #now we set the values of u_state
