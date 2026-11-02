@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 import numpy as np
-from matplotlib import pyplot as plt
-import sys
 
 #globals
 
@@ -28,8 +26,6 @@ class Simulator():
         self.dy = 1/(self.ny - 1)
         #length of timestep, we will calculate this later
         self.dt = None
-        #this holds the values of our rendering array
-        self.grid = np.ones((self.nx, self.ny, 3))
         #this is the state vector, u
         self.u_state = np.zeros((self.nx, self.ny, 4))
         #let us define the intervals were our unnatrually square wave will lie
@@ -65,13 +61,6 @@ class Simulator():
         self.a_x = np.zeros((self.nx, self.ny))
         #the same for the y
         self.a_y = np.zeros((self.nx, self.ny))
-        fig, ax = plt.subplots()
-        self.fig = fig
-        self.ax = ax
-        self.im = ax.imshow(self.grid)
-        def on_close(event):
-            sys.exit(0)
-        self.fig.canvas.mpl_connect('close_event', on_close)
 
     #this calculates the flux vector, how fast u_state is moving on average in a cell
     def update_flux(self):
@@ -111,7 +100,6 @@ class Simulator():
         dt = CFL / ((a_x_max / self.dx) + (a_y_max / self.dy) + EPSILON)
         
         self.dt = min(dt, 1)
-
 
     #this recalculates p after state is updated
     def update_p(self):
@@ -153,30 +141,11 @@ class Simulator():
         self.u_state[:, 0, :] = self.u_state[:, 1, :]
         self.u_state[:, -1, :] = self.u_state[:, -2, :]
 
-    def render(self):
-        x = self.u_state[:, :, 1]
-        y = self.u_state[:, :, 2]
-        p = self.p
-
-        normalized_x = (x - np.min(x)) / (np.max(x) - np.min(x) + EPSILON)
-        normalized_y = (y - np.min(y)) / (np.max(y) - np.min(y) + EPSILON)
-        normalized_p = (p - np.min(p)) / (np.max(p) - np.min(p) + EPSILON)
-
-        self.grid[..., 0] = normalized_p
-        self.grid[..., 1] = normalized_x
-        self.grid[..., 2] = normalized_y
-
-        self.im.set_data(self.grid)
-        plt.draw()
-        plt.pause(self.dt)
-
-    def clean_up(self):
-        plt.close('all')
-
 def main():
     #this is a quick demo to make sure stuff works
     simulator = Simulator()
     simulator.u_state[0, simulator.c_start:simulator.c_end, 1] = .1
+    simulator.update_e()
     speed_limit = np.max(simulator.u_state[:, :, 1])
     simulator.optimized_lf()
 
