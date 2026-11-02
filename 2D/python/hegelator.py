@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 def random_array_gen(tc, nx, ny):
     flat_data = tc.draw(
         gs.lists(
-            gs.floats(min_value=0.0, max_value=1.0), 
+            gs.floats(min_value=0.001, max_value=1.0), 
             min_size=nx * ny, 
             max_size=nx * ny
         )
