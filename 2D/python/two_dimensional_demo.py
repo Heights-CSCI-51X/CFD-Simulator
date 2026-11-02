@@ -26,7 +26,7 @@ def render(simulator, grid):
 
 def main():
 
-    my_simulator = Simulator()
+    my_simulator = Simulator(100, 100)
 
     fig, ax = plt.subplots()
 

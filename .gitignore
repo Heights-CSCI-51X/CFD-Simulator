@@ -7,7 +7,6 @@
 
 # Virtual environment (specific to your project setup)
 2D/python/.venv/
-2D/python/cfd_simulator/
 
 # this stops random hegel stuff from loading
 2D/python/.hegel/
