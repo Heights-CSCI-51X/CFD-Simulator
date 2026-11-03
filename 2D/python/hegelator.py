@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 def random_array_gen(tc, nx, ny):
     flat_data = tc.draw(
         gs.lists(
-            gs.floats(min_value=0.01, max_value=1), 
+            gs.floats(min_value=0.01, max_value=2.5), 
             min_size=nx * ny, 
             max_size=nx * ny
         )
@@ -18,7 +18,7 @@ def random_array_gen(tc, nx, ny):
 
 @hegel.test(test_cases=500)
 def test_if_simulator_settles(tc):
-    nx = ny = tc.draw(gs.integers(min_value=8, max_value=12))
+    nx = ny = tc.draw(gs.integers(min_value=8, max_value=20))
     # ny = tc.draw(gs.integers(min_value=8, max_value=32))
     my_simulator = Simulator(nx, ny)
     my_simulator.u_state[:, :, 0] = tc.draw(random_array_gen(my_simulator.nx, my_simulator.ny))

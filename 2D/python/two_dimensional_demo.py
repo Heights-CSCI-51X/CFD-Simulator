@@ -29,7 +29,7 @@ def render(simulator, grid, initial_max_e, initial_min_e):
 
 def main():
 
-    my_simulator = Simulator(random.randint(8, 100), random.randint(8, 100))
+    my_simulator = Simulator(random.randint(8, 200), random.randint(8, 200))
 
     initial_max_e = np.max(my_simulator.u_state[:, :, 3])
 
