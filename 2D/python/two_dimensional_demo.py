@@ -3,6 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from two_dimensional_simulator import Simulator
 import sys
+import random
 
 EPSILON = .0000000000000000001
 
@@ -25,6 +26,8 @@ def render(simulator, grid):
     plt.pause(simulator.dt)
 
 def main():
+
+    # my_simulator = Simulator(random.randint(8, 100), random.randint(8, 100))
 
     my_simulator = Simulator(50, 50)
 

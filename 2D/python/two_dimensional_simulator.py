@@ -7,7 +7,7 @@ import numpy as np
 GAMMA = 1.4
 
 #this is a small number we will need to prevent division by zero
-EPSILON = .000000000000000000000001
+EPSILON = .00000000000000000000000000001
 
 #we use this to calculate how little work the simulator can do without crashing
 CFL = .3
@@ -64,6 +64,7 @@ class Simulator():
     #this calculates the flux vector, how fast u_state is moving on average in a cell
     def update_flux(self):
         rho = self.u_state[:, :, 0]
+        rho = np.maximum(rho, 1e-5)
         u = self.u_state[:, :, 1] / rho
         v = self.u_state[:, :, 2] / rho
         e = self.u_state[:, :, 3]
@@ -107,6 +108,7 @@ class Simulator():
 
     def update_e(self):
         rho = self.u_state[:, :, 0]
+        rho = np.maximum(rho, 1e-5)
         u = self.u_state[:, :, 1] / rho
         v = self.u_state[:, :, 2] / rho
         
