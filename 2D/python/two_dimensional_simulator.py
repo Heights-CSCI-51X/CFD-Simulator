@@ -39,9 +39,9 @@ class Simulator():
         u = np.zeros((self.nx, self.ny))
         v = np.zeros((self.nx, self.ny))
         #let us set the velocity to these strange values
-        rho[1, :] = .2
-        u[1, :] = .7
-        self.p[1, :] = .2
+        rho[1, :] = 1
+        u[1, :] = 1
+        self.p[1, :] = 1
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
         #now we set the values of u_state

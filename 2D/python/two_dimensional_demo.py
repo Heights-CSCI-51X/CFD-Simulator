@@ -7,7 +7,7 @@ import random
 
 EPSILON = .0000000000000000001
 
-def render(simulator, grid):
+def render(simulator, grid, initial_max_e):
     x = simulator.u_state[:, :, 1]
     y = simulator.u_state[:, :, 2]
     p = simulator.p
@@ -16,7 +16,9 @@ def render(simulator, grid):
     normalized_x = (x - np.min(x)) / (np.max(x) - np.min(x) + EPSILON)
     normalized_y = (y - np.min(y)) / (np.max(y) - np.min(y) + EPSILON)
     normalized_p = (p - np.min(p)) / (np.max(p) - np.min(p) + EPSILON)
-    normalized_e = (e - np.min(e)) / (np.max(e) - np.min(e) + EPSILON)
+    normalized_e = (e - np.min(e)) / (initial_max_e - np.min(e) + EPSILON)
+
+    normalized_e = np.clip(normalized_e, 0, 1)
 
     grid[..., 0] = 0 # normalized_p
     grid[..., 1] = 0 # normalized_x
@@ -28,6 +30,8 @@ def render(simulator, grid):
 def main():
 
     my_simulator = Simulator(random.randint(8, 100), random.randint(8, 100))
+
+    initial_max_e = np.max(my_simulator.u_state[:, :, 3])
 
     # my_simulator = Simulator(8, 8)
 
@@ -47,7 +51,8 @@ def main():
     for i in range(my_simulator.nt):
         my_simulator.optimized_lf()
         im.set_data(grid)
-        render(my_simulator, grid)
+        render(my_simulator, grid, initial_max_e)
+        print(np.max(my_simulator.u_state[:, :, 3]))
             
 
     plt.ioff()
