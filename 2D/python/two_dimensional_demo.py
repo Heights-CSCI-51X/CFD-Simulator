@@ -23,13 +23,13 @@ def render(simulator, grid):
     grid[..., 2] = normalized_e # normalized_y
 
     plt.draw()
-    plt.pause(simulator.dt)
+    plt.pause(simulator.dt / 6)
 
 def main():
 
-    # my_simulator = Simulator(random.randint(8, 100), random.randint(8, 100))
+    my_simulator = Simulator(random.randint(8, 100), random.randint(8, 100))
 
-    my_simulator = Simulator(50, 50)
+    # my_simulator = Simulator(8, 8)
 
     fig, ax = plt.subplots()
 
@@ -46,7 +46,6 @@ def main():
     
     for i in range(my_simulator.nt):
         my_simulator.optimized_lf()
-        my_simulator.update_e()
         im.set_data(grid)
         render(my_simulator, grid)
             

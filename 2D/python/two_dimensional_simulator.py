@@ -20,7 +20,7 @@ class Simulator():
         self.nx = nx
         self.ny = ny
         #number of time steps
-        self.nt = 1000
+        self.nt = 3000
         #cell distance
         self.dx = 1/(self.nx - 1)
         self.dy = 1/(self.ny - 1)
@@ -39,9 +39,9 @@ class Simulator():
         u = np.zeros((self.nx, self.ny))
         v = np.zeros((self.nx, self.ny))
         #let us set the velocity to these strange values
-        rho[0, :] = .2
-        u[0, :] = .7
-        self.p[0, :] = .2
+        rho[1, :] = .2
+        u[1, :] = .7
+        self.p[1, :] = .2
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
         #now we set the values of u_state
@@ -136,7 +136,7 @@ class Simulator():
         net_flux_y = (self.dt / self.dy) * (flux_at_the_walls_y[1:-1, 1:, :] - flux_at_the_walls_y[1:-1, :-1, :])
 
         #this adjusts everything using the average of the squares around it, and some artificial dissapation
-        self.u_state[1:-1, 1:-1, :] -= (net_flux_x + net_flux_y)
+        self.u_state[1:-1, 1:-1, :] = average # -= (net_flux_x + net_flux_y)
         
         #this adjusts the boundary (which we can't compute normally)
         self.u_state[0, :, :] = self.u_state[1, :, :]
