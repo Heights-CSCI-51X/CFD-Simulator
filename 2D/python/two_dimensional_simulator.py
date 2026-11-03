@@ -136,7 +136,7 @@ class Simulator():
         net_flux_y = (self.dt / self.dy) * (flux_at_the_walls_y[1:-1, 1:, :] - flux_at_the_walls_y[1:-1, :-1, :])
 
         #this adjusts everything using the average of the squares around it, and some artificial dissapation
-        self.u_state[1:-1, 1:-1, :] = average # -= (net_flux_x + net_flux_y)
+        self.u_state[1:-1, 1:-1, :] -= (net_flux_x + net_flux_y)
         
         #this adjusts the boundary (which we can't compute normally)
         self.u_state[0, :, :] = self.u_state[1, :, :]
