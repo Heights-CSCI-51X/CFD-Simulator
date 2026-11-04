@@ -39,9 +39,12 @@ class Simulator():
         u = np.zeros((self.nx, self.ny))
         v = np.zeros((self.nx, self.ny))
         #we will give the system some energy, for it is right and just
-        rho[0, :] = .25
-        u[0, :] = .5
-        self.p[0, :] = .25
+        rho[0, :] = .001
+        u[0, :] = .01
+        self.p[0, :] = .01
+        rho[-1, :] = .001
+        u[-1, :] = .01
+        self.p[-1, :] = .01
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
         #now we set the values of u_state
