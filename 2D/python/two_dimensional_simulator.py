@@ -38,10 +38,10 @@ class Simulator():
         #u and v, the velocity of the fluid at a given point
         u = np.zeros((self.nx, self.ny))
         v = np.zeros((self.nx, self.ny))
-        #let us set the velocity to these strange values
-        rho[1, :] = 2
-        u[1, :] = 10
-        self.p[1, :] = 2
+        #we will give the system some energy, for it is right and just
+        rho[0, :] = .25
+        u[0, :] = .5
+        self.p[0, :] = .25
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
         #now we set the values of u_state
@@ -147,8 +147,10 @@ class Simulator():
 def main():
     #this is a quick demo to make sure stuff works
     simulator = Simulator()
-    # simulator.u_state[0, simulator.c_start:simulator.c_end, 1] = .5
-    simulator.update_e()
+    #let us set the velocity to these strange values
+    simulator.u_state[0, :, 0] = 2
+    simulator.u_state[0, :, 1] = 4
+    simulator.p[1, :] = 2
     simulator.update()
     print(simulator.u_state)
 
