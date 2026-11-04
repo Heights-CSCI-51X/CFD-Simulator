@@ -7,6 +7,9 @@ import random
 
 EPSILON = .0000000000000000001
 
+def random_array_gen(nx, ny, min, max):
+    return np.random.uniform(min, max, (nx, ny))
+
 def render(simulator, grid, initial_max_e, initial_min_e):
     x = simulator.u_state[:, :, 1]
     y = simulator.u_state[:, :, 2]
@@ -29,7 +32,13 @@ def render(simulator, grid, initial_max_e, initial_min_e):
 
 def main():
 
-    my_simulator = Simulator(random.randint(8, 200), random.randint(8, 200))
+    my_simulator = Simulator(50, 50)
+
+    print(random_array_gen(4, 4, .01, .011))
+
+    # my_simulator.u_state[:, :, 1] = random_array_gen(my_simulator.nx, my_simulator.ny, .01, 0.011)
+
+    my_simulator.update()
 
     initial_max_e = np.max(my_simulator.u_state[:, :, 3])
 
@@ -54,7 +63,7 @@ def main():
         my_simulator.optimized_lf()
         im.set_data(grid)
         render(my_simulator, grid, initial_max_e, initial_min_e)
-        print(np.max(my_simulator.u_state[:, :, 3]))
+        # print(np.max(my_simulator.u_state[:, :, 3]))
             
 
     plt.ioff()
