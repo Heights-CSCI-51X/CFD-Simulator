@@ -7,7 +7,7 @@ import numpy as np
 GAMMA = 1.4
 
 #this is a small number we will need to prevent division by zero
-EPSILON = .00000000000000001
+EPSILON = .00000000000000000000001
 
 #we use this to calculate how little work the simulator can do without crashing
 CFL = .3
@@ -36,21 +36,18 @@ class Simulator():
         #p, the pressure of the fluid at a given point
         self.p = np.zeros((self.nx, self.ny)) 
         #u and v, the velocity of the fluid at a given point
-        u = np.zeros((self.nx, self.ny)) + EPSILON
-        v = np.zeros((self.nx, self.ny)) + EPSILON
+        u = np.zeros((self.nx, self.ny))
+        v = np.zeros((self.nx, self.ny))
         #we will give the system some energy, for it is right and just
-        rho[0, :] = .00000000001
-        u[0, :] = .00000000001
-        self.p[0, :] = .00000000001
-        rho[-1, :] = .00000000001
-        u[-1, :] = .00000000001
-        self.p[-1, :] = .00000000001
-        # rho[:, 0] = .00000000001
-        # v[:, 0] = .00000000001
-        # self.p[:, 0] = .00000000001
-        # rho[:, -1] = .00000000001
-        # v[:, -1] = .00000000001
-        # self.p[:, -1] = .00000000001
+        rho[:, :] = .00000000001
+        u[:, :] = .00000000001
+        self.p[:, :] = .00000000001
+        rho[0, :] = .1
+        u[0, :] = 2
+        self.p[0, :] = .1
+        rho[-1, :] = .1
+        u[-1, :] = -2
+        self.p[-1, :] = .1
         #e, the total energy in a fluid cell
         e = self.p / (GAMMA - 1) + 1/2 * rho *  (u ** 2 + v ** 2)
         #now we set the values of u_state
