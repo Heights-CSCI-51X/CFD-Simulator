@@ -46,7 +46,7 @@ def main():
             click_y = int(round(event.ydata))
 
             radius = 5
-            high_energy_value = initial_max_e
+            high_energy_value = initial_max_e * .1
 
             y, x = np.ogrid[:my_simulator.nx, :my_simulator.ny]
             dist_from_center = np.sqrt((x - click_x)**2 + (y - click_y)**2)
