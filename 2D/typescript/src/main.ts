@@ -1,9 +1,14 @@
+const canvas = document.getElementById("c");
 
-const c = document.getElementById('c')
-
-if (c) {
-  console.log("Canvas has been located")
+if (!(canvas instanceof HTMLCanvasElement) || (canvas == null)) {
+  console.error("No canvas for you!");
 } else {
-  console.error("No canvas for you!")
-}
+  console.log("Canvas has been located");
+  const ctx = canvas.getContext("2d");
 
+  if (!ctx) {
+    console.error("No context for rendering :(")
+  } else {
+    
+  }
+}
