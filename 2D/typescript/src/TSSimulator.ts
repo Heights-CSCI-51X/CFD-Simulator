@@ -3,7 +3,7 @@ interface SimulatorOptions {
   y?: number;
 }
 
-class Simulator {
+export default class Simulator {
   x: number;
   y: number;
 
@@ -12,6 +12,3 @@ class Simulator {
     this.y = y;
   }
 }
-
-const simulator = new Simulator();
-console.log(simulator.x); // 0

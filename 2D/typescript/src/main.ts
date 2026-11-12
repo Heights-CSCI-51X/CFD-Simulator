@@ -1,3 +1,5 @@
+import Simulator from "./TSSimulator.ts";
+
 const canvas = document.getElementById("c");
 
 if (!(canvas instanceof HTMLCanvasElement) || (canvas == null)) {
@@ -9,6 +11,14 @@ if (!(canvas instanceof HTMLCanvasElement) || (canvas == null)) {
   if (!ctx) {
     console.error("No context for rendering :(")
   } else {
-    
+    console.log("Context has been found!")
+
+var my_simulator = new Simulator({ 
+  x: canvas.clientWidth, 
+  y: canvas.clientHeight 
+});
+
+console.log(my_simulator.x)
+
   }
 }
