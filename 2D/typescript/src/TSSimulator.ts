@@ -4,7 +4,7 @@ import * as np from 'numpy-ts';
 const EPSILON = 1e-10;
 const GAMMA = 1.4;
 
-export class Simulator {
+export default class Simulator {
   nx: number;
   ny: number;
   nt: number;

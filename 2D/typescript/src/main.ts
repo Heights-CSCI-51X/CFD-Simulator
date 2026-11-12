@@ -13,12 +13,9 @@ if (!(canvas instanceof HTMLCanvasElement) || (canvas == null)) {
   } else {
     console.log("Context has been found!")
 
-var my_simulator = new Simulator({ 
-  x: canvas.clientWidth, 
-  y: canvas.clientHeight 
-});
+var my_simulator = new Simulator(canvas.clientWidth, canvas.clientHeight);
 
-console.log(my_simulator.x)
+console.log(my_simulator.nx)
 
   }
 }
