@@ -94,4 +94,30 @@ export default class Simulator {
       }
     }
   }
+  
+  updateFlux(): void {
+    let rho = this.u_state.slice(':', ':', '0');
+    rho = np.maximum(rho, 1e-5);
+
+    const u = this.u_state.slice(':', ':', '1').divide(rho);
+    const v = this.u_state.slice(':', ':', '2').divide(rho);
+    const e = this.u_state.slice(':', ':', '3');
+
+    const rhoU = rho.multiply(u);
+    const rhoV = rho.multiply(v);
+    const rhoUV = rhoU.multiply(v);
+    const ePlusP = e.add(this.p);
+
+    const f0 = rhoU;
+    const f1 = rho.multiply(u.power(2)).add(this.p);
+    const f2 = rhoUV;
+    const f3 = ePlusP.multiply(u);
+    this.f_flux = np.stack([f0, f1, f2, f3], -1);
+
+    const g0 = rhoV;
+    const g1 = rhoUV;
+    const g2 = rho.multiply(v.power(2)).add(this.p);
+    const g3 = ePlusP.multiply(v);
+    this.g_flux = np.stack([g0, g1, g2, g3], -1);
+  }
 }
