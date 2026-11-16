@@ -94,7 +94,7 @@ export default class Simulator {
       }
     }
   }
-  
+
   updateFlux(): void {
     let rho = this.u_state.slice(':', ':', '0');
     rho = np.maximum(rho, 1e-5);
@@ -119,5 +119,20 @@ export default class Simulator {
     const g2 = rho.multiply(v.power(2)).add(this.p);
     const g3 = ePlusP.multiply(v);
     this.g_flux = np.stack([g0, g1, g2, g3], -1);
+  }
+
+  updateMaxSpeed(): void {
+    let rho = this.u_state.slice(':', ':', '0');
+    rho = np.maximum(rho, 1e-5);
+
+    const u = np.divide(this.u_state.slice(':', ':', '1'), rho);
+    const v = np.divide(this.u_state.slice(':', ':', '2'), rho);
+
+    const pSafe = np.abs(this.p);
+    const rhoSafe = np.abs(rho);
+    const c = np.sqrt(np.divide(np.multiply(pSafe, GAMMA), rhoSafe));
+
+    this.max_speed_x = np.add(np.abs(u), c);
+    this.max_speed_y = np.add(np.abs(v), c);
   }
 }
