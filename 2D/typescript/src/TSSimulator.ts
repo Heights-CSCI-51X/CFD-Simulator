@@ -1,8 +1,9 @@
 import * as np from 'numpy-ts';
 
 // Define constants if not already imported from elsewhere
-const EPSILON = 1e-10;
 const GAMMA = 1.4;
+const CFL = 0.5;
+const EPSILON = 1e-8;
 
 export default class Simulator {
   nx: number;
@@ -97,7 +98,7 @@ export default class Simulator {
 
   updateFlux(): void {
     let rho = this.u_state.slice(':', ':', '0');
-    rho = np.maximum(rho, 1e-5);
+    rho = np.maximum(rho, EPSILON);
 
     const u = this.u_state.slice(':', ':', '1').divide(rho);
     const v = this.u_state.slice(':', ':', '2').divide(rho);
@@ -123,7 +124,7 @@ export default class Simulator {
 
   updateMaxSpeed(): void {
     let rho = this.u_state.slice(':', ':', '0');
-    rho = np.maximum(rho, 1e-5);
+    rho = np.maximum(rho, EPSILON);
 
     const u = np.divide(this.u_state.slice(':', ':', '1'), rho);
     const v = np.divide(this.u_state.slice(':', ':', '2'), rho);
@@ -134,5 +135,75 @@ export default class Simulator {
 
     this.max_speed_x = np.add(np.abs(u), c);
     this.max_speed_y = np.add(np.abs(v), c);
+  }
+  public updateA(): void {
+    this.a_x = np.maximum(
+      this.max_speed_x.slice(':-1', ':'),
+      this.max_speed_x.slice('1:', ':')
+    );
+
+    this.a_y = np.maximum(
+      this.max_speed_y.slice(':', ':-1'),
+      this.max_speed_y.slice(':', '1:')
+    );
+  }
+
+  public updateDt(): void {
+    const a_x_max = np.max(this.max_speed_x.slice('1:-1', '1:-1')) as number;
+    const a_y_max = np.max(this.max_speed_y.slice('1:-1', '1:-1')) as number;
+
+    const dt = CFL / ((a_x_max / this.dx) + (a_y_max / this.dy) + EPSILON);
+    this.dt = Math.min(dt, 1);
+  }
+
+  public updateP(): void {
+    const rho = this.u_state.slice(':', ':', '0');
+    const mom_x = this.u_state.slice(':', ':', '1');
+    const mom_y = this.u_state.slice(':', ':', '2');
+    const E = this.u_state.slice(':', ':', '3');
+
+    const kinetic_energy = mom_x
+      .power(2)
+      .add(mom_y.power(2))
+      .multiply(0.5)
+      .divide(rho.add(EPSILON));
+
+    this.p = E.subtract(kinetic_energy).multiply(GAMMA - 1);
+  }
+
+  public updateE(): void {
+    let rho = this.u_state.slice(':', ':', '0');
+    rho = np.maximum(rho, EPSILON);
+
+    const u = this.u_state.slice(':', ':', '1').divide(rho);
+    const v = this.u_state.slice(':', ':', '2').divide(rho);
+
+    const internal_e = this.p.divide(GAMMA - 1);
+    const kinetic_e = u
+      .power(2)
+      .add(v.power(2))
+      .multiply(rho)
+      .multiply(0.5);
+
+    const new_e = internal_e.add(kinetic_e);
+
+    this.u_state = np.stack(
+      [
+        this.u_state.slice(':', ':', '0'),
+        this.u_state.slice(':', ':', '1'),
+        this.u_state.slice(':', ':', '2'),
+        new_e,
+      ],
+      2
+    );
+  }
+
+  public update(): void {
+    this.updateP();
+    this.updateE();
+    this.updateFlux();
+    this.updateMaxSpeed();
+    this.updateA();
+    this.updateDt();
   }
 }
