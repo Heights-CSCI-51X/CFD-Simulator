@@ -12,7 +12,7 @@ export default class Simulator {
 
   dx: number;
   dy: number;
-  dt: number | null;
+  dt: number;
 
   r_start: number;
   r_end: number;
@@ -40,7 +40,7 @@ export default class Simulator {
     this.dx = 1 / (this.nx - 1);
     this.dy = 1 / (this.ny - 1);
 
-    this.dt = null;
+    this.dt = EPSILON
 
     this.u_state = np.zeros([this.nx, this.ny, 4]);
 
@@ -205,5 +205,58 @@ export default class Simulator {
     this.updateMaxSpeed();
     this.updateA();
     this.updateDt();
+  }
+
+  optimizedLf(): void {
+    this.update();
+
+    const f_avg = this.f_flux
+      .slice(':-1', ':', ':')
+      .add(this.f_flux.slice('1:', ':', ':'))
+      .multiply(0.5);
+
+    const ax_expanded = this.a_x.slice(':', ':', 'newaxis');
+    const u_diff_x = this.u_state
+      .slice('1:', ':', ':')
+      .subtract(this.u_state.slice(':-1', ':', ':'));
+
+    const flux_at_the_walls_x = f_avg.subtract(
+      ax_expanded.multiply(0.5).multiply(u_diff_x)
+    );
+
+    const g_avg = this.g_flux
+      .slice(':', ':-1', ':')
+      .add(this.g_flux.slice(':', '1:', ':'))
+      .multiply(0.5);
+
+    const ay_expanded = this.a_y.slice(':', ':', 'newaxis');
+    const u_diff_y = this.u_state
+      .slice(':', '1:', ':')
+      .subtract(this.u_state.slice(':', ':-1', ':'));
+
+    const flux_at_the_walls_y = g_avg.subtract(
+      ay_expanded.multiply(0.5).multiply(u_diff_y)
+    );
+
+    const net_flux_x = flux_at_the_walls_x
+      .slice('1:', '1:-1', ':')
+      .subtract(flux_at_the_walls_x.slice(':-1', '1:-1', ':'))
+      .multiply(this.dt / this.dx);
+
+    const net_flux_y = flux_at_the_walls_y
+      .slice('1:-1', '1:', ':')
+      .subtract(flux_at_the_walls_y.slice('1:-1', ':-1', ':'))
+      .multiply(this.dt / this.dy);
+
+    const interior_updated = this.u_state
+      .slice('1:-1', '1:-1', ':')
+      .subtract(net_flux_x.add(net_flux_y));
+
+    np.copyto(this.u_state.slice('1:-1', '1:-1', ':'), interior_updated)
+
+    np.copyto(this.u_state.slice('0', ':', ':'), this.u_state.slice('1', ':', ':'))
+    np.copyto(this.u_state.slice('-1', ':', ':'), this.u_state.slice('-2', ':', ':'))
+    np.copyto(this.u_state.slice(':', '0', ':'), this.u_state.slice(':', '1', ':'))
+    np.copyto(this.u_state.slice(':', '-1', ':'), this.u_state.slice(':', '-2', ':'))
   }
 }

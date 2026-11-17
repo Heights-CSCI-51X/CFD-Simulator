@@ -15,6 +15,8 @@ if (!(canvas instanceof HTMLCanvasElement) || (canvas == null)) {
 
 var my_simulator = new Simulator(canvas.clientWidth, canvas.clientHeight);
 
+my_simulator.optimizedLf()
+
 console.log(my_simulator.nx)
 
   }
