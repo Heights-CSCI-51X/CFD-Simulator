@@ -56,17 +56,17 @@ export default class Simulator {
     const u = np.zeros([this.nx, this.ny]);
     const v = np.zeros([this.nx, this.ny]);
 
-    rho.fill(0.00000000001);
+    rho.fill(0.0001);
     u.fill(0.00000000001);
-    this.p.fill(0.00000000001);
+    this.p.fill(0.0001);
 
-    rho.slice('0', ':').fill(0.1);
-    u.slice('0', ':').fill(2);
-    this.p.slice('0', ':').fill(0.1);
+    rho.slice('0', ':').fill(0.001);
+    u.slice('0', ':').fill(0.00001);
+    this.p.slice('0', ':').fill(0.01);
 
-    rho.slice('-1', ':').fill(0.1);
-    u.slice('-1', ':').fill(-2);
-    this.p.slice('-1', ':').fill(0.1);
+    rho.slice('-1', ':').fill(0.001);
+    u.slice('-1', ':').fill(-0.00001);
+    this.p.slice('-1', ':').fill(0.01);
 
     const kineticEnergy = rho
       .multiply(0.5)
@@ -77,6 +77,11 @@ export default class Simulator {
     this.setChannel(this.u_state, 1, u.multiply(rho));
     this.setChannel(this.u_state, 2, v.multiply(rho));
     this.setChannel(this.u_state, 3, e);
+
+    rho.dispose()
+    u.dispose()
+    v.dispose()
+    e.dispose()
 
     this.f_flux = np.zeros([this.nx, this.ny, 4]);
     this.g_flux = np.zeros([this.nx, this.ny, 4]);
@@ -258,5 +263,16 @@ export default class Simulator {
     np.copyto(this.u_state.slice('-1', ':', ':'), this.u_state.slice('-2', ':', ':'))
     np.copyto(this.u_state.slice(':', '0', ':'), this.u_state.slice(':', '1', ':'))
     np.copyto(this.u_state.slice(':', '-1', ':'), this.u_state.slice(':', '-2', ':'))
+
+    ax_expanded.dispose()
+    ay_expanded.dispose()
+    interior_updated.dispose()
+    u_diff_x.dispose()
+    u_diff_y.dispose()
+    net_flux_x.dispose()
+    net_flux_y.dispose()
+    flux_at_the_walls_x.dispose()
+    flux_at_the_walls_y.dispose()
+    f_avg.dispose()
   }
 }

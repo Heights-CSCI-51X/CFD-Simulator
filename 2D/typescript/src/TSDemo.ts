@@ -1,3 +1,4 @@
+import Simulator from "./TSSimulator";
 //Got this from AI, plan to modifiy it, just wanted quick renderer to make sure simulator was working --> it is hard to visulaze in 2D
 
 // Adjust this interface to match your actual Simulator class and tensor library (e.g., numjs / ndarray)
@@ -7,17 +8,10 @@ export interface Tensor3D {
   data?: Float32Array | Float64Array | number[];
 }
 
-export interface FluidSimulator {
-  nx: number;
-  ny: number;
-  u_state: Tensor3D;
-  step?: () => void; // Optional: include if you want Demo to drive the animation loop
-}
-
 export type VisualizationChannel = 'density' | 'pressure' | 'velocity' | 'energy';
 
-export class Demo {
-  private sim: FluidSimulator;
+export default class Demo {
+  private sim: Simulator;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
 
@@ -30,7 +24,7 @@ export class Demo {
   private gamma: number = 1.4;
   private animationFrameId: number | null = null;
 
-  constructor(sim: FluidSimulator, canvas: HTMLCanvasElement, gamma: number = 1.4) {
+  constructor(sim: Simulator, canvas: HTMLCanvasElement, gamma: number = 1.4) {
     this.sim = sim;
     this.canvas = canvas;
     this.gamma = gamma;
@@ -76,7 +70,7 @@ export class Demo {
     for (let i = 0; i < nx; i++) {
       for (let j = 0; j < ny; j++) {
         // Channel 0: rho, Channel 1: rho*u, Channel 2: rho*v, Channel 3: total energy E
-        const rho = Math.max(u_state.get(i, j, 0), 1e-12);
+        const rho = Math.max(Number(u_state.get(i, j, 0)), 1e-12);
         const rhou = u_state.get(i, j, 1);
         const rhov = u_state.get(i, j, 2);
         const E = u_state.get(i, j, 3);

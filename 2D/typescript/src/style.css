@@ -1,3 +1,16 @@
-.simulator-canvas {
-  text-align: center;
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: center;     /* Centers vertically */
+  background-color: #111;  /* Optional background color */
+}
+
+/* Visually stretch the canvas without changing its internal resolution */
+canvas {
+  width: 80vw;             /* Stretches to 80% of the screen width */
+  height: 80vh;            /* Stretches to 80% of the screen height */
+  border: 2px solid #fff;  /* Optional border to see the edges */
 }

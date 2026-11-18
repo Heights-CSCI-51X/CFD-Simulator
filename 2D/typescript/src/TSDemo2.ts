@@ -1,20 +1,13 @@
+import Simulator from "./TSSimulator";
+
 const EPSILON = 1e-19;
 
 /**
  * Interface matching the expected structure of your TypeScript Simulator class.
- * Assumes `uState` is indexed as [row (y)][col (x)][variable], matching NumPy's (nx, ny, 4).
+ * Assumes `u_state` is indexed as [row (y)][col (x)][variable], matching NumPy's (nx, ny, 4).
  */
-export interface Simulator {
-  nx: number; // Number of rows (height)
-  ny: number; // Number of columns (width)
-  nt: number; // Total time steps
-  dt: number; // Time step duration
-  uState: number[][][]; // Or Float64Array[][] depending on your implementation
-  update(): void;
-  optimizedLf(): void;
-}
 
-export class SimulationRenderer {
+export default class Demo2 {
   private simulator: Simulator;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -62,15 +55,19 @@ export class SimulationRenderer {
   }
 
   /**
-   * Scans uState[:, :, 3] to find the minimum and maximum energy values.
+   * Scans u_state[:, :, 3] to find the minimum and maximum energy values.
    */
   private getEnergyExtrema(): { min: number; max: number } {
     let min = Infinity;
     let max = -Infinity;
 
+    const data = this.simulator.u_state.data as Float64Array; // or Float32Array
+    const [strideX, strideY, strideZ] = this.simulator.u_state.strides;
+
     for (let x = 0; x < this.simulator.nx; x++) {
+      const offsetX = x * strideX;
       for (let y = 0; y < this.simulator.ny; y++) {
-        const e = this.simulator.uState[x][y][3];
+        const e = data[offsetX + y * strideY + 3 * strideZ];
         if (e < min) min = e;
         if (e > max) max = e;
       }
@@ -89,21 +86,24 @@ export class SimulationRenderer {
 
     let pixelIndex = 0;
 
+    const uData = this.simulator.u_state.data;
+    const [strideX, strideY, strideC] = this.simulator.u_state.strides;
+
     for (let x = 0; x < this.simulator.nx; x++) {
+      const rowOffset = x * strideX;
       for (let y = 0; y < this.simulator.ny; y++) {
-        const e = this.simulator.uState[x][y][3];
+        const e = Number(uData[rowOffset + y * strideY + 3 * strideC]);
 
         // Normalize and clamp between 0 and 1
         let normalizedE = (e - currentMinE) / denominator;
         if (normalizedE < 0) normalizedE = 0;
         else if (normalizedE > 1) normalizedE = 1;
 
-        // Map [0, 1] to [0, 255] for the Blue channel (index + 2)
-        // Red (index + 0) and Green (index + 1) remain 0, matching `grid[..., 2] = normalized_e`
-        data[pixelIndex] = 0;                                  // R
-        data[pixelIndex + 1] = 0;                              // G
-        data[pixelIndex + 2] = Math.round(normalizedE * 255);  // B
-        data[pixelIndex + 3] = 255;                            // Alpha (fully opaque)
+        // Map [0, 1] to [0, 255] for the Blue channel
+        data[pixelIndex] = 0; // R
+        data[pixelIndex + 1] = 0; // G
+        data[pixelIndex + 2] = Math.round(normalizedE * 255); // B
+        data[pixelIndex + 3] = 255; // Alpha
 
         pixelIndex += 4;
       }
