@@ -56,17 +56,16 @@ export default class Simulator {
     const u = np.zeros([this.nx, this.ny]);
     const v = np.zeros([this.nx, this.ny]);
 
-    rho.fill(0.0001);
-    u.fill(0.00000000001);
-    this.p.fill(0.0001);
+    rho.add(0.5);
+    this.p.add(0.5);
 
-    rho.slice('0', ':').fill(0.001);
-    u.slice('0', ':').fill(0.00001);
-    this.p.slice('0', ':').fill(0.01);
+    rho.slice('0', ':').fill(0.5);
+    u.slice('0', ':').fill(0.5);
+    this.p.slice('0', ':').fill(0.5);
 
-    rho.slice('-1', ':').fill(0.001);
-    u.slice('-1', ':').fill(-0.00001);
-    this.p.slice('-1', ':').fill(0.01);
+    // rho.slice('-1', ':').add(1.1);
+    // u.slice('-1', ':').add(-0.11);
+    // this.p.slice('-1', ':').add(1.1);
 
     const kineticEnergy = rho
       .multiply(0.5)

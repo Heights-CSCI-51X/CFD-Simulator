@@ -10,7 +10,7 @@ html, body {
 
 /* Visually stretch the canvas without changing its internal resolution */
 canvas {
-  width: 80vw;             /* Stretches to 80% of the screen width */
+  width: auto;             /* Stretches to 80% of the screen width */
   height: 80vh;            /* Stretches to 80% of the screen height */
   border: 2px solid #fff;  /* Optional border to see the edges */
 }
